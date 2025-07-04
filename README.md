@@ -26,8 +26,6 @@
 #### Notes
 - I'm not pro on coding, so this theme is a bit mess. Anyway i already test it on netlify a few weeks and work well.
 
-- The big problem maybe in seo, i try @schema.org but failed so i just use general seo.
-
 ## Installation
 
 #### Git Submodule
@@ -37,6 +35,8 @@
     
 #### Update Submodule
     git submodule update --remote --merge
+    git commit -m "Update submodule e-Novel"
+    git push
     
 ## Usage for localhost
 Install dependencies, 
