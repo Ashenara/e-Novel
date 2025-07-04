@@ -1,0 +1,19 @@
+<aside id="reader-sidebar">
+    <div class="sidebar-content">
+        <!-- The Book's Title -->
+        <h3 class="text-xl font-bold mb-4">{{ .Parent.Title }}</h3>
+        
+        <!-- Chapter List -->
+        <nav class="toc-list">
+            <ul>
+                {{ range .Parent.Pages.ByParam "chapter_number" }}
+                    <li>
+                        <a href="{{ .RelPermalink }}" {{ if eq .RelPermalink $.RelPermalink }}class="active"{{ end }}>
+                            {{ .Title }}
+                        </a>
+                    </li>
+                {{ end }}
+            </ul>
+        </nav>
+    </div>
+</aside>

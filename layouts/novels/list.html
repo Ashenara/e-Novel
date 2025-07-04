@@ -1,0 +1,59 @@
+{{ define "main" }}
+<div class="container mx-auto px-4 py-8 space-y-12">
+    
+    {{ partial "components/breadcrumb.html" . }}
+
+    <h1 class="text-4xl font-extrabold text-(--color-foreground) mb-6 text-center">{{ .Title }}</h1>
+    {{ with .Content }}
+        <div class="prose dark:prose-invert max-w-3xl mx-auto text-center">{{ . }}</div>
+    {{ end }}
+
+    <!-- REVAMPED: Filter Button Section now matches the style from home.html -->
+    <section class="bg-(--color-card) p-6 rounded-lg shadow-lg">
+        <h3 class="text-xl font-bold text-(--color-foreground) mb-4 text-center">Browse by Origin</h3>
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="{{ "/novels/cn" | relURL }}" class="bg-(--color-primary) text-white px-6 py-2 rounded-lg font-bold hover:bg-(--color-primary-hover) transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                Chinese Novels
+            </a>
+            <a href="{{ "/novels/jn" | relURL }}" class="bg-(--color-primary) text-white px-6 py-2 rounded-lg font-bold hover:bg-(--color-primary-hover) transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                Japanese Novels
+            </a>
+            <a href="{{ "/novels/kn" | relURL }}" class="bg-(--color-primary) text-white px-6 py-2 rounded-lg font-bold hover:bg-(--color-primary-hover) transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                Korean Novels
+            </a>
+            <a href="{{ "/novels/wn" | relURL }}" class="bg-(--color-primary) text-white px-6 py-2 rounded-lg font-bold hover:bg-(--color-primary-hover) transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                Western Novels
+            </a>
+        </div>
+    </section>
+
+    <!-- Novels Grid -->
+    <section>
+        {{ $pages := .Pages }}
+        {{ if eq .RelPermalink ("/novels/" | relURL) }}
+            {{ $pages = where .Site.Pages "Section" "novels" }}
+        {{ end }}
+        
+        {{ $novelsOnly := where $pages "IsNode" true }}
+        {{ $novelsOnly = where $novelsOnly "Params.excludeFromLists" "!=" true }}
+        
+        {{ $pageSize := 30 }}
+        {{ $paginator := .Paginate $novelsOnly.ByTitle $pageSize }}
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+            {{ if gt (len $paginator.Pages) 0 }}
+                {{ range $paginator.Pages }}
+                    {{ partial "card/responsive-novel-card.html" . }}
+                {{ end }}
+            {{ else }}
+                <p class="text-(--color-muted-foreground) col-span-full text-center py-10">
+                    There are no novels listed in this section yet.
+                </p>
+            {{ end }}
+        </div>
+    </section>
+
+    {{ partial "pagination.html" $paginator }}
+
+</div>
+{{ end }}

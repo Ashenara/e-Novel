@@ -1,0 +1,39 @@
+{{ $paginator := . }}
+
+{{ if gt $paginator.TotalPages 1 }}
+<nav class="flex justify-center items-center space-x-1 sm:space-x-2 mt-12" aria-label="Pagination">
+    
+    <!-- Previous Page Link -->
+    {{ if $paginator.HasPrev }}
+        <a href="{{ $paginator.Prev.URL }}" class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-(--color-muted) text-(--color-muted-foreground) hover:bg-(--color-border) hover:text-(--color-foreground) transition-colors" aria-label="Previous Page">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        </a>
+    {{ else }}
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-(--color-muted) text-(--color-muted-foreground) opacity-50 cursor-not-allowed">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        </span>
+    {{ end }}
+
+    <!-- Page Number Links -->
+    {{ range $paginator.Pagers }}
+        {{ if eq .PageNumber $paginator.PageNumber }}
+            <span aria-current="page" class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-(--color-primary) text-white font-bold text-sm">{{ .PageNumber }}</span>
+        {{ else }}
+            <a href="{{ .URL }}" class="hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-lg bg-(--color-muted) text-(--color-muted-foreground) hover:bg-(--color-border) hover:text-(--color-foreground) transition-colors font-medium text-sm" aria-label="Go to page {{ .PageNumber }}">
+                {{ .PageNumber }}
+            </a>
+        {{ end }}
+    {{ end }}
+
+    <!-- Next Page Link -->
+    {{ if $paginator.HasNext }}
+        <a href="{{ $paginator.Next.URL }}" class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-(--color-muted) text-(--color-muted-foreground) hover:bg-(--color-border) hover:text-(--color-foreground) transition-colors" aria-label="Next Page">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+        </a>
+    {{ else }}
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-(--color-muted) text-(--color-muted-foreground) opacity-50 cursor-not-allowed">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+        </span>
+    {{ end }}
+</nav>
+{{ end }}

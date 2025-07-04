@@ -1,0 +1,158 @@
+{{ define "main" }}
+<div class="container mx-auto px-4 py-12 max-w-md">
+    <h1 class="text-3xl font-bold text-center mb-6">{{ .Title }}</h1>
+
+    <!-- Login/Signup Form -->
+    <div id="auth-form" class="bg-(--color-card) p-8 rounded-lg shadow-xl space-y-4">
+        
+        <!-- NEW: Google Sign-in Button -->
+        <button id="google-signin-btn" class="w-full flex items-center justify-center gap-3 bg-white text-gray-700 font-semibold px-4 py-3 rounded-lg shadow-md border border-gray-300 hover:bg-gray-50 transition-colors">
+            <svg class="w-5 h-5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><title>Google Logo</title><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"></path><path fill="#34A853" d="M24 48c6.5 0 11.93-2.13 15.89-5.82l-7.11-5.52c-2.17 1.46-4.96 2.32-8.78 2.32-6.76 0-12.47-4.55-14.51-10.61H1.28v5.7C5.24 42.13 13.82 48 24 48z"></path><path fill="#FBBC05" d="M9.49 28.19c-.44-1.32-.69-2.73-.69-4.19s.25-2.87.69-4.19V14.1H1.28C.46 16.63 0 19.45 0 24s.46 7.37 1.28 9.9l8.21-5.71z"></path><path fill="#EA4335" d="M24 9.32c3.54 0 6.64 1.22 9.12 3.6l6.3-6.3C35.91 2.82 30.48 0 24 0 13.82 0 5.24 5.87 1.28 14.1l8.21 5.71C11.53 13.87 17.24 9.32 24 9.32z"></path></svg>
+            Sign in with Google
+        </button>
+
+        <!-- NEW: Separator -->
+        <div class="flex items-center">
+            <div class="grow border-t border-(--color-border)"></div>
+            <span class="shrink mx-4 text-xs text-(--color-muted-foreground)">OR</span>
+            <div class="grow border-t border-(--color-border)"></div>
+        </div>
+
+        <div>
+            <label for="email" class="block text-sm font-medium text-(--color-muted-foreground)">Email</label>
+            <input type="email" id="email" class="mt-1 block w-full px-3 py-2 bg-(--color-background) border border-(--color-border) rounded-md shadow-sm focus:outline-none focus:ring-(--color-primary) focus:border-(--color-primary)">
+        </div>
+        <div>
+            <label for="password" class="block text-sm font-medium text-(--color-muted-foreground)">Password</label>
+            <input type="password" id="password" class="mt-1 block w-full px-3 py-2 bg-(--color-background) border border-(--color-border) rounded-md shadow-sm focus:outline-none focus:ring-(--color-primary) focus:border-(--color-primary)">
+        </div>
+        <p id="auth-error" class="text-red-500 text-sm hidden"></p>
+        <div class="flex space-x-4 pt-4">
+            <button id="login-btn" class="flex-1 text-center bg-(--color-primary) text-white px-6 py-3 rounded-lg font-bold hover:bg-(--color-primary-hover)">Login</button>
+            <button id="signup-btn" class="flex-1 text-center bg-(--color-muted) text-(--color-muted-foreground) px-6 py-3 rounded-lg font-bold hover:bg-opacity-80">Sign Up</button>
+        </div>
+    </div>
+
+    <!-- Logged In State -->
+    <div id="auth-loggedin" class="bg-(--color-card) p-8 rounded-lg shadow-xl text-center hidden">
+        <p class="text-lg text-(--color-foreground) mb-4">You are logged in as <strong id="user-email"></strong>.</p>
+        <a href="{{ "/account" | relURL }}" class="text-center bg-(--color-primary) text-white px-6 py-3 rounded-lg font-bold hover:bg-(--color-primary-hover) inline-block">Go to My Account</a>
+        <button id="logout-btn" class="mt-4 text-sm text-(--color-muted-foreground) hover:text-(--color-primary)">Logout</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const checkFirebase = setInterval(() => {
+        // We need db defined now as well for new user creation
+        if (typeof auth !== 'undefined' && typeof db !== 'undefined') {
+            clearInterval(checkFirebase);
+            initAuthPage();
+        }
+    }, 100);
+
+    function initAuthPage() {
+        const authForm = document.getElementById('auth-form');
+        const authLoggedIn = document.getElementById('auth-loggedin');
+        const userEmailEl = document.getElementById('user-email');
+        const authErrorEl = document.getElementById('auth-error');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        // ---- NEW: Google Sign-in logic ----
+        document.getElementById('google-signin-btn').addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    // This gives you a Google Access Token. You can use it to access the Google API.
+                    const credential = result.credential;
+                    const token = credential.accessToken;
+                    // The signed-in user info.
+                    const user = result.user;
+
+                    console.log('Signed in with Google!', user);
+                    authErrorEl.classList.add('hidden');
+                    
+                    // IMPORTANT: Check if this is a new user
+                    if (result.additionalUserInfo.isNewUser) {
+                        // Create a document for them in Firestore so we can store library/history
+                        db.collection('users').doc(user.uid).set({
+                            displayName: user.displayName,
+                            email: user.email,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }).then(() => {
+                            console.log("New user profile created in Firestore.");
+                            window.location.href = "{{ "/account" | relURL }}";
+                        }).catch(error => {
+                            console.error("Error creating user profile:", error);
+                        });
+                    } else {
+                        // Existing user, just redirect
+                        window.location.href = "{{ "/account" | relURL }}";
+                    }
+
+                }).catch((error) => {
+                    // Handle Errors here.
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    authErrorEl.textContent = errorMessage;
+                    authErrorEl.classList.remove('hidden');
+                    console.error("Google Sign-in Error:", error);
+                });
+        });
+
+        // Handle UI changes on auth state
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                authForm.classList.add('hidden');
+                authLoggedIn.classList.remove('hidden');
+                userEmailEl.textContent = user.email;
+            } else {
+                authForm.classList.remove('hidden');
+                authLoggedIn.classList.add('hidden');
+                userEmailEl.textContent = '';
+            }
+        });
+
+        // Sign Up
+        document.getElementById('signup-btn').addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    console.log('Signed up!', userCredential.user);
+                    authErrorEl.classList.add('hidden');
+                    window.location.href = "{{ "/account" | relURL }}"; // Redirect to account page
+                })
+                .catch(error => {
+                    authErrorEl.textContent = error.message;
+                    authErrorEl.classList.remove('hidden');
+                });
+        });
+
+        // Login
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            auth.signInWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    console.log('Logged in!', userCredential.user);
+                    authErrorEl.classList.add('hidden');
+                     window.location.href = "{{ "/account" | relURL }}"; // Redirect to account page
+                })
+                .catch(error => {
+                    authErrorEl.textContent = error.message;
+                    authErrorEl.classList.remove('hidden');
+                });
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            auth.signOut().then(() => {
+                console.log('Logged out');
+            });
+        });
+    }
+});
+</script>
+{{ end }}

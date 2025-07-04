@@ -1,0 +1,39 @@
+{{ $announcements := where (where .Site.RegularPages "Section" "blog") "Params.announcement" true }}
+
+{{ $latestAnnouncements := first 2 (sort $announcements "PublishDate" "desc") }}
+
+<div class="space-y-6">
+    {{ if $latestAnnouncements }}
+        {{ range $latestAnnouncements }}
+            <a href="{{ .Permalink }}" class="group block bg-(--color-card) p-6 rounded-lg shadow-md border border-transparent hover:border-(--color-border) hover:-translate-y-1 transition-all duration-300">
+                
+                <!-- Title -->
+                <h3 class="text-xl font-bold text-(--color-foreground) group-hover:text-(--color-primary) transition-colors mb-2">
+                    {{ .Title }}
+                </h3>
+
+                <!-- Summary -->
+                <p class="text-sm text-(--color-muted-foreground) line-clamp-2 mb-4">
+                    {{ .Summary | plainify | truncate 150 }}
+                </p>
+
+                <!-- Footer with Metadata -->
+                <div class="flex items-center gap-x-3 text-xs text-(--color-muted-foreground) pt-4 border-t border-(--color-border)">
+                    {{ with .Params.author }}
+                        <span>By <span class="font-semibold text-(--color-foreground)">{{ . }}</span></span>
+                    {{ end }}
+                    
+                    {{ if and .Params.author .PublishDate }}<span class="opacity-50">•</span>{{ end }}
+
+                    {{ with .PublishDate }}
+                        <span>{{ .Format "January 2, 2006" }}</span>
+                    {{ end }}
+                </div>
+            </a>
+        {{ end }}
+    {{ else }}
+        <div class="bg-(--color-card) p-6 rounded-lg shadow-md text-center">
+            <p class="text-(--color-muted-foreground)">No recent announcements.</p>
+        </div>
+    {{ end }}
+</div>

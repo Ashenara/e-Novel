@@ -1,0 +1,35 @@
+{{ define "main" }}
+<div class="container mx-auto px-4 py-8 space-y-12">
+    
+    {{ partial "components/breadcrumb.html" . }}
+
+    <header class="text-center">
+        <h1 class="text-4xl font-extrabold text-(--color-foreground) mb-4">{{ .Title }}</h1>
+        {{ with .Content }}
+            <div class="prose dark:prose-invert max-w-2xl mx-auto">{{ . }}</div>
+        {{ end }}
+    </header>
+
+    <!-- Blog Posts List -->
+    <section>
+        {{ $pages := where site.RegularPages "Type" "blog" }}
+        {{ $sortedPages := sort $pages "Date" "desc" }}
+
+        {{ $pageSize := 5 }}
+        {{ $paginator := .Paginate $sortedPages $pageSize }}
+        <div class="grid grid-cols-1 gap-8 justify-items-center">
+            {{ if gt $paginator.TotalPages 0 }}
+                {{ range $paginator.Pages }}
+                    {{ partial "card/blog-card.html" . }}
+                {{ end }}
+            {{ else }}
+                <p class="text-(--color-muted-foreground) col-span-full text-center py-10">
+                    There are no blog posts here yet.
+                </p>
+            {{ end }}
+        </div>
+    </section>
+
+    {{ partial "pagination.html" $paginator }}
+</div>
+{{ end }}

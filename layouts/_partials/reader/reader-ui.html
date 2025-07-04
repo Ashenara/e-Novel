@@ -1,0 +1,96 @@
+<div id="reader-ui-container">
+
+    <!-- Top Navigation for Prev/Next -->
+    <div id="reader-top-nav-bar">
+        {{ $chapters := sort .CurrentSection.Pages "Params.chapter_number" "asc" }}
+        {{ $current := . }}
+        {{ $index := -1 }}
+        {{ range $i, $p := $chapters }}
+            {{ if eq $p.RelPermalink $current.RelPermalink }}
+                {{ $index = $i }}
+            {{ end }}
+        {{ end }}
+
+        {{ if gt $index 0 }}
+            {{ $prev := index $chapters (sub $index 1) }}
+            <a href="{{ $prev.RelPermalink }}" class="nav-btn">← Prev</a>
+        {{ else }}
+            <span class="nav-btn disabled">← Prev</span>
+        {{ end }}
+
+        <div class="chapter-info">
+            Chapter {{ .Params.chapter_number | default "N/A" }}
+        </div>
+
+        {{ if lt (add $index 1) (len $chapters) }}
+            {{ $next := index $chapters (add $index 1) }}
+            <a href="{{ $next.RelPermalink }}" class="nav-btn">Next →</a>
+        {{ else }}
+            <span class="nav-btn disabled">Next →</span>
+        {{ end }}
+    </div>
+
+    <!-- Panels Container (Settings) -->
+    <div id="reader-panels-container">
+        <div id="panel-settings" class="reader-panel visible">
+             <div class="panel-content">
+                <div class="setting-item">
+                    <label>Font</label>
+                    <div class="setting-group" data-setting="fontFamily">
+                        <button data-value="'Nunito Sans', sans-serif">Nunito</button>
+                        <button data-value="'Roboto', sans-serif">Roboto</button>
+                        <button data-value="'Lora', serif">Lora</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Font Size</label>
+                    <div class="setting-group">
+                        <button id="font-size-minus">A-</button>
+                        <button id="font-size-value" class="value-display" disabled>18</button>
+                        <button id="font-size-plus">A+</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Line Height</label>
+                    <div class="setting-group">
+                        <button id="line-height-minus">-</button>
+                        <button id="line-height-value" class="value-display" disabled>170%</button>
+                        <button id="line-height-plus">+</button>
+                    </div>
+                </div>
+                <!-- NEW: Paragraph Spacing Setting -->
+                <div class="setting-item">
+                    <label>Paragraph Spacing</label>
+                    <div class="setting-group">
+                        <button id="p-spacing-minus">-</button>
+                        <button id="p-spacing-value" class="value-display" disabled>0.8em</button>
+                        <button id="p-spacing-plus">+</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Reader Theme</label>
+                    <div class="setting-group" data-setting="theme">
+                       <button class="swatch" data-value="theme-light" style="background-color: #fafafa;"></button>
+                       <button class="swatch" data-value="theme-mint" style="background-color: #e6f8f5;"></button>
+                       <button class="swatch" data-value="theme-sepia" style="background-color: #fbf0d9;"></button>
+                       <button class="swatch" data-value="theme-dark" style="background-color: #121212;"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Icon Bar -->
+    <div id="reader-bottom-bar">
+        <button id="toc-sidebar-toggle" data-tooltip="Table of Contents">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        </button>
+        <button data-panel="settings" class="active" data-tooltip="Display Settings">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+        </button>
+        <a href="{{ .CurrentSection.RelPermalink }}" class="icon-btn" data-tooltip="Back to Book Index">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        </a>
+    </div>
+
+</div>

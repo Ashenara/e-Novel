@@ -1,0 +1,51 @@
+{{- $page := . -}}
+{{- $site := .Site -}}
+
+{{- $pageTitle := "" -}}
+{{- if $page.IsHome -}}
+    {{- $pageTitle = $site.Title -}}
+{{- else -}}
+    {{- $pageTitle = printf "%s | %s" $page.Title $site.Title -}}
+{{- end -}}
+
+{{- $pageDesc := "" -}}
+{{- with $page.Params.description -}}
+    {{- $pageDesc = . -}}
+{{- else -}}
+    {{- $pageDesc = $page.Summary | default $site.Params.description -}}
+{{- end -}}
+{{- $pageDesc = $pageDesc | plainify | truncate 200 -}}
+
+{{- $pageImage := "" -}}
+{{- with $page.Params.image -}}
+    {{- $pageImage = . | absURL -}}
+{{- else -}}
+    {{- with $site.Params.images -}}
+        {{- $pageImage = index . 0 | absURL -}}
+    {{- end -}}
+{{- end -}}
+
+<!-- The HTML <title> tag -->
+<title>{{ $pageTitle }}</title>
+
+<!-- Basic SEO meta tags -->
+<meta name="description" content="{{ $pageDesc }}">
+<meta name="author" content="{{ $site.Params.author | default "Arashe" }}">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="{{ .Permalink }}">
+
+<!-- Open Graph Tags (for Facebook, LinkedIn, etc.) -->
+<meta property="og:title" content="{{ $page.Title }}">
+<meta property="og:description" content="{{ $pageDesc }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ $site.Title }}">
+{{ with $pageImage }}<meta property="og:image" content="{{ . }}">{{ end }}
+
+<!-- Twitter Card Tags -->
+<meta name="twitter:card" content="{{ if $pageImage }}summary_large_image{{ else }}summary{{ end }}">
+{{ with $site.Params.twitter }}<meta name="twitter:site" content="@{{ . }}">{{ end }}
+<meta name="twitter:title" content="{{ $page.Title }}">
+<meta name="twitter:description" content="{{ $pageDesc }}">
+{{ with $pageImage }}<meta name="twitter:image" content="{{ . }}">{{ end }}

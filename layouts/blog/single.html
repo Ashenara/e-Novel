@@ -1,0 +1,85 @@
+{{ define "main" }}
+<div class="container mx-auto px-4 py-8">
+    
+    {{ partial "components/breadcrumb.html" . }}
+
+    <div class="lg:grid lg:grid-cols-12 lg:gap-8 mt-8">
+
+        <!-- Main Content Column -->
+        <article class="lg:col-span-9">
+            <!-- Post Header -->
+            <header class="mb-8">
+                {{ with .Params.image }}
+                <div class="mb-6 rounded-lg overflow-hidden">
+                    <img loading="lazy" src="{{ . | relURL }}" alt="{{ $.Title }} featured image" class="w-full h-auto object-cover max-h-[450px] rounded-lg shadow-lg">
+                </div>
+                {{ end }}
+                <h1 class="text-4xl md:text-5xl font-extrabold text-(--color-foreground) mb-4 leading-tight">
+                    {{ .Title }}
+                </h1>
+                <div class="text-(--color-muted-foreground) text-sm flex flex-wrap items-center gap-x-4 gap-y-2">
+                    {{ with .Params.author }}<span>By <span class="font-semibold text-(--color-foreground)">{{ . }}</span></span>{{ end }}
+                    {{ if .PublishDate }}<span>{{ .PublishDate.Format "January 2, 2006" }}</span>{{ end }}
+                    {{ if .ReadingTime }}<span>{{ .ReadingTime }} min read</span>{{ end }}
+                </div>
+            </header>
+
+            <!-- Post Content -->
+            <div class="prose dark:prose-invert max-w-none">
+                {{ .Content }}
+            </div>
+
+            <!-- Tags & Categories -->
+            <footer class="mt-12 pt-6 border-t border-(--color-border)">
+                {{ partial "terms.html" (dict "page" . "taxonomy" "categories") }}
+                {{ partial "terms.html" (dict "page" . "taxonomy" "tags") }}
+            </footer>
+        </article>
+
+        <!-- Sidebar Column (Table of Contents) -->
+        {{ partial "toc.html" . }}
+    </div>
+
+    <!-- Related Posts -->
+    {{ $related := where (where .Site.RegularPages "Section" "blog") "Permalink" "!=" .Permalink | intersect (where .Site.RegularPages "Params.tags" "intersect" .Params.tags) | shuffle | first 10 }}
+    {{ if $related }}
+    <section class="mt-16 pt-8 border-t border-(--color-border)">
+        <h2 class="text-3xl font-bold text-(--color-foreground) mb-8 text-center">More from Our Blog</h2>
+        <div class="flex flex-nowrap overflow-x-auto pb-4 -mx-4 px-4 hide-scrollbar space-x-4">
+            {{ range $related }}
+                {{ partial "card/horizontal-blog-card.html" . }}
+            {{ end }}
+        </div>
+    </section>
+    {{ end }}
+
+    <!-- Comments -->
+    {{ if .Site.Params.enableComments }}
+    <section>
+        {{ $pageId := .File.UniqueID }}
+        {{ $pageData := dict "pageId" $pageId "pageTitle" .Title "pageUrl" .Permalink }}
+        {{ partial "firebase/comments-firebase.html" $pageData }}
+   </section>
+    {{ end }}
+</div>
+
+<script>
+    // Smooth scroll for Table of Contents links (handles IDs with special characters)
+    document.querySelectorAll('#toc a').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const targetId = this.getAttribute('href');
+            if (targetId && targetId.startsWith('#')) {
+                const decodedId = CSS.escape(targetId.slice(1));
+                const targetElement = document.getElementById(decodedId);
+                if (targetElement) {
+                    e.preventDefault();
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+    });
+</script>
+{{ end }}

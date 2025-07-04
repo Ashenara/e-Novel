@@ -1,0 +1,65 @@
+{{ $ctx := . }}
+
+{{ $imageSrc := "" }}
+{{ with $ctx.Params.image }}
+    {{ $imageSrc = . | relURL }}
+{{ else }}
+    {{ $imageSrc = "https://placehold.co/400x600/27272A/FFFFFF?text=Cover" }}
+{{ end }}
+
+{{ $title := $ctx.Title }}
+{{ $permalink := $ctx.Permalink }}
+{{ $genres := $ctx.Params.genres | default (slice) }}
+{{ $status := $ctx.Params.status | default "" }}
+{{ $chapter := $ctx.Params.chapter }}
+{{ $publishedDate := $ctx.PublishDate }}
+
+{{ if reflect.IsSlice $status }}{{ with first 1 $status }}{{ $status = index . 0 }}{{ end }}{{ end }}
+
+<a href="{{ $permalink }}" class="group flex flex-col w-[175px] shrink-0 bg-(--color-card) rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+    
+    <!-- Image Section -->
+    <div class="relative">
+        <div class="aspect-3/4 w-full overflow-hidden">
+            <img loading="lazy" 
+                 src="{{ $imageSrc }}"
+                 alt="{{ $title }} Cover"
+                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                 onerror="this.onerror=null;this.src='https://placehold.co/400x600/CCCCCC/666666?text=Image+Missing';">
+        </div>
+        {{ with $status }}
+        <div class="absolute top-2 left-2 z-10">
+            <span class="bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow">
+                {{ . }}
+            </span>
+        </div>
+        {{ end }}
+    </div>
+
+    <!-- Content Area: grow allows the mt-auto trick to work -->
+    <div class="p-3 flex flex-col grow">
+        <!-- Title (at the top, can be 1 or 2 lines) -->
+        <h3 class="text-sm font-bold text-(--color-foreground) leading-tight line-clamp-2 group-hover:text-(--color-primary) transition-colors">
+            {{ $title }}
+        </h3>
+
+        <div class="mt-auto">
+            <!-- Genre is now here, its position fixed relative to the footer -->
+            {{ with first 1 $genres }}
+            <p class="text-xs text-(--color-muted-foreground) line-clamp-1 mb-2">
+                {{ index . 0 }}
+            </p>
+            {{ end }}
+
+            <!-- Footer with Chapter & Date -->
+            <div class="pt-2 border-t border-(--color-border) flex justify-between items-center text-xs text-(--color-muted-foreground)">
+                {{ with $chapter }}
+                    <span>Ch. {{ . }}</span>
+                {{ end }}
+                {{ with $publishedDate }}
+                    <span class="font-medium">{{ .Format "Jan 2" }}</span>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+</a>

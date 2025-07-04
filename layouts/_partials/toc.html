@@ -1,0 +1,14 @@
+{{ $minTocLen := .Site.Params.toc.minChar | default 200 }}
+
+{{ if ge (len .TableOfContents) $minTocLen }}
+<aside class="hidden lg:block lg:col-span-3">
+    <div class="sticky top-24">
+        <h3 class="text-lg font-bold text-(--color-foreground) mb-4">
+            On this page
+        </h3>
+        <nav id="toc" class="text-sm toc-links">
+            {{ .TableOfContents }}
+        </nav>
+    </div>
+</aside>
+{{ end }}

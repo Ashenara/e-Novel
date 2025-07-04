@@ -1,0 +1,49 @@
+<footer class="bg-(--color-card) border-t border-(--color-border) mt-16">
+    <div class="container mx-auto px-4 py-8 space-y-8">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            
+            <!-- Logo and Site Title -->
+            <a class="flex items-center gap-3" href="{{ "/" | relURL }}">
+                {{ with .Site.Params.logo }}
+                    <img loading="lazy" src="{{ . | relURL }}" alt="Site Logo" class="h-10 w-10 rounded-full object-cover"/>
+                {{ end }}
+                <span class="text-xl font-bold text-(--color-foreground)">{{ .Site.Title }}</span>
+            </a>
+
+            <!-- Footer Navigation -->
+            {{ if .Site.Menus.footer }}
+            <nav>
+                <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-medium text-(--color-muted-foreground)">
+                    {{ range .Site.Menus.footer }}
+                        <li><a href="{{ .URL | relURL }}" class="hover:text-(--color-primary) transition-colors">{{ .Name }}</a></li>
+                    {{ end }}
+                </ul>
+            </nav>
+            {{ end }}
+
+            <!-- Social Links -->
+            {{ if .Site.Params.social }}
+            <div class="flex flex-wrap justify-center gap-3">
+                {{ range .Site.Params.social }}
+                    <a href="{{ .url }}" target="_blank" rel="noopener noreferrer" title="{{ .name }}"
+                        class="w-10 h-10 flex items-center justify-center rounded-lg bg-(--color-muted) text-(--color-muted-foreground) hover:bg-(--color-border) hover:text-(--color-primary) transition-all">
+                        {{ with .icon }}
+                            {{ with resources.Get . }}
+                                <img src="{{ .RelPermalink }}" alt="" class="w-5 h-5 themeable-icon">
+                            {{ end }}
+                        {{ end }}
+                    </a>
+                {{ end }}
+            </div>
+            {{ end }}
+        </div>
+
+        <!-- Bottom Bar: Copyright and Credits -->
+        <div class="border-t border-(--color-border) pt-6 text-center">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-2 text-sm text-(--color-muted-foreground)">
+                <span>© {{ now.Format "2006" }} {{ .Site.Title }}. All Rights Reserved.</span>
+                <span>Theme Designed By <a href="https://github.com/ashenara/e-Novel" class="font-semibold text-(--color-foreground) hover:underline">Ashenara</a>.</span>
+            </div>
+        </div>
+    </div>
+</footer>

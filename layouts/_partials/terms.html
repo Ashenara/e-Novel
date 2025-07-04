@@ -1,0 +1,19 @@
+{{- $page := .page -}}
+{{- $taxonomy := .taxonomy -}}
+
+{{- with $page.GetTerms $taxonomy -}}
+    {{- $taxonomyTitle := (index . 0).Page.Parent.LinkTitle -}}
+
+    <div class="flex items-center flex-wrap gap-x-4 gap-y-2">
+        <h3 class="text-sm font-bold text-(--color-foreground) m-0 p-0">
+            {{- $taxonomyTitle }}:
+        </h3>
+        <div class="flex flex-wrap gap-2">
+            {{- range . -}}
+                <a href="{{ .Page.RelPermalink }}" class="bg-(--color-tag-bg) text-(--color-tag-text) text-xs font-medium px-3 py-1 rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">
+                    {{- .LinkTitle -}}
+                </a>
+            {{- end -}}
+        </div>
+    </div>
+{{- end -}}

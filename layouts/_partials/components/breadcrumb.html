@@ -1,0 +1,35 @@
+{{ $crumbs := slice (dict "url" ("/" | relURL) "title" "Home") }}
+
+{{ if eq .Kind "term" }}
+    {{ with .Site.GetPage (printf "/%s" .Data.Plural) }}
+        {{ $crumbs = $crumbs | append (dict "url" .Permalink "title" .Title) }}
+    {{ end }}
+{{ end }}
+
+{{ range .Ancestors.Reverse }}
+    {{ if and .IsSection (ne .Permalink "/") }}
+        {{ $crumbs = $crumbs | append (dict "url" .Permalink "title" .Title) }}
+    {{ end }}
+{{ end }}
+
+{{ if not .IsHome }}
+    {{ $crumbs = $crumbs | append (dict "url" .Permalink "title" .Title "active" true) }}
+{{ end }}
+
+<nav class="text-sm font-medium mb-6" aria-label="breadcrumb">
+    <ol class="list-none p-0 inline-flex flex-wrap items-center gap-2">
+        {{ range $i, $crumb := $crumbs }}
+            <li class="flex items-center">
+                {{ if $crumb.active }}
+                    <span class="text-(--color-foreground) font-semibold">{{ $crumb.title }}</span>
+                {{ else }}
+                    <a href="{{ $crumb.url }}" class="text-(--color-primary) hover:underline">{{ $crumb.title }}</a>
+                    
+                    <svg class="w-4 h-4 text-(--color-muted-foreground) ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                {{ end }}
+            </li>
+        {{ end }}
+    </ol>
+</nav>

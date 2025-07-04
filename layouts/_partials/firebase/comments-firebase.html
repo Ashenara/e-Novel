@@ -1,0 +1,250 @@
+{{ $pageId := .pageId }}
+{{ $pageTitle := .pageTitle }}
+{{ $pageUrl := .pageUrl }}
+
+<section id="firebase-comments" 
+        data-page-id="{{ $pageId }}" 
+        data-page-title="{{ $pageTitle }}" 
+        data-page-url="{{ $pageUrl }}" 
+        class="mt-16 mx-auto max-w-4xl">
+    <h2 class="text-2xl font-bold text-(--color-foreground) mb-6 flex items-center gap-2">
+        <span>Comments</span>
+        
+        <span id="comment-count-badge" class="text-base font-semibold text-(--color-muted-foreground)"></span>
+    </h2>
+
+    <!-- Comment Submission Form -->
+    <div id="comment-form-container" class="mb-8">
+        <!-- This message shows for logged-out users -->
+        <div id="comment-login-prompt" class="hidden p-4 bg-(--color-muted) rounded-lg text-center">
+            <p class="text-(--color-muted-foreground)">Please <a href="{{ "/login" | relURL }}" class="font-bold text-(--color-primary) hover:underline">log in</a> to post a comment.</p>
+        </div>
+
+        <!-- This form shows for logged-in users -->
+        <form id="comment-form" class="hidden">
+            <div class="flex items-start space-x-4">
+                <img id="comment-user-avatar" src="https://placehold.co/48x48/CCCCCC/666666?text=U" alt="Your avatar" class="h-10 w-10 rounded-full object-cover">
+                <div class="flex-1">
+                    <textarea id="comment-input" class="w-full p-3 bg-(--color-background) border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--color-primary)" rows="3" placeholder="Add a comment..." required></textarea>
+                    <div class="flex justify-end mt-2">
+                        <button type="submit" class="px-6 py-2 bg-(--color-primary) text-white font-semibold rounded-lg hover:bg-(--color-primary-hover) transition-colors disabled:opacity-50">
+                            Post Comment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- List of Comments -->
+    <div id="comments-list" class="space-y-6">
+        <!-- Comments will be rendered here by JavaScript -->
+    </div>
+    <div id="comments-footer" class="text-center mt-8">
+        <button id="load-more-comments-btn" class="hidden px-6 py-2 bg-(--color-primary) text-white font-semibold rounded-lg hover:bg-(--color-primary-hover) transition-colors disabled:opacity-50">
+            Load More Comments
+        </button>
+        <p id="comments-loader-msg" class="text-center text-(--color-muted-foreground)">Loading comments...</p>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- State variables for pagination ---
+    let lastVisibleComment = null;
+    let allCommentsLoaded = false;
+    const initialLimit = 5;
+    const lazyLoadLimit = 5;
+
+    const checkFirebase = setInterval(() => {
+        if (typeof auth !== 'undefined' && typeof db !== 'undefined') {
+            clearInterval(checkFirebase);
+            initCommentSection();
+        }
+    }, 100);
+
+    function initCommentSection() {
+        const commentsSection = document.getElementById('firebase-comments');
+        if (!commentsSection) return;
+
+        const pageId = commentsSection.dataset.pageId;
+        const commentForm = document.getElementById('comment-form');
+        const loadMoreBtn = document.getElementById('load-more-comments-btn');
+
+        // Initial Load
+        fetchComments(pageId, initialLimit);
+        
+        // Listener for the "Load More" button
+        loadMoreBtn.addEventListener('click', () => {
+            fetchComments(pageId, lazyLoadLimit);
+        });
+
+        // Load the total comment count
+        loadCommentCount(pageId);
+        
+        // Setup UI based on auth state
+        setupAuthUI();
+        
+        // Handle comment form submission
+        commentForm.addEventListener('submit', (e) => handleCommentSubmit(e, pageId));
+    }
+
+    /**
+     * Fetches a batch of comments and appends them to the list.
+     */
+    async function fetchComments(pageId, limit) {
+        const commentsList = document.getElementById('comments-list');
+        const loadMoreBtn = document.getElementById('load-more-comments-btn');
+        const loaderMsg = document.getElementById('comments-loader-msg');
+        
+        if (allCommentsLoaded) return;
+
+        loaderMsg.textContent = 'Loading comments...';
+        loaderMsg.classList.remove('hidden');
+        loadMoreBtn.classList.add('hidden');
+
+        try {
+            const commentsRef = db.collection('comments').doc(pageId).collection('messages');
+            let query = commentsRef.orderBy('timestamp', 'desc');
+
+            if (lastVisibleComment) {
+                query = query.startAfter(lastVisibleComment);
+            }
+            
+            const snapshot = await query.limit(limit).get();
+            
+            if (snapshot.empty && !lastVisibleComment) {
+                loaderMsg.textContent = 'Be the first to comment!';
+                allCommentsLoaded = true;
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const comment = doc.data();
+                const commentDate = comment.timestamp ? comment.timestamp.toDate().toLocaleString() : 'Just now';
+                const commentHTML = `
+                <div class="flex items-start space-x-4">
+                    <img src="${comment.authorAvatarUrl}" alt="${comment.authorName}" class="h-10 w-10 rounded-full object-cover">
+                    <div class="flex-1">
+                        <div class="bg-(--color-muted) p-4 rounded-lg rounded-tl-none">
+                            <div class="flex items-baseline justify-between">
+                                <p class="font-bold text-(--color-foreground)">${comment.authorName}</p>
+                                <p class="text-xs text-(--color-muted-foreground)">${commentDate}</p>
+                            </div>
+                            <p class="mt-2 text-(--color-foreground) whitespace-pre-wrap">${comment.text}</p>
+                        </div>
+                    </div>
+                </div>
+                `;
+                commentsList.insertAdjacentHTML('beforeend', commentHTML);
+            });
+
+            lastVisibleComment = snapshot.docs[snapshot.docs.length - 1];
+            loaderMsg.classList.add('hidden');
+
+            if (snapshot.size < limit) {
+                allCommentsLoaded = true;
+                loadMoreBtn.classList.add('hidden');
+                loaderMsg.textContent = 'No more comments to load.';
+                loaderMsg.classList.remove('hidden');
+            } else {
+                loadMoreBtn.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+            loaderMsg.textContent = 'Error loading comments.';
+        }
+    }
+
+    /**
+     * Handles comment submission and refreshes the list.
+     */
+    async function handleCommentSubmit(e, pageId) {
+        e.preventDefault();
+        const commentsSection = document.getElementById('firebase-comments');
+        const commentInput = document.getElementById('comment-input');
+        const currentUser = auth.currentUser;
+        const commentText = commentInput.value.trim();
+        if (!currentUser || !commentText) return;
+
+        const pageTitle = commentsSection.dataset.pageTitle;
+        const pageUrl = commentsSection.dataset.pageUrl;
+        const pageDocRef = db.collection('comments').doc(pageId);
+        const newMessageRef = pageDocRef.collection('messages').doc();
+        
+        const commentData = {
+            text: commentText,
+            authorId: currentUser.uid,
+            authorName: currentUser.displayName || 'Anonymous',
+            authorAvatarUrl: currentUser.photoURL || 'https://placehold.co/48x48/CCCCCC/666666?text=U',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        const batch = db.batch();
+        batch.set(newMessageRef, commentData);
+        batch.set(pageDocRef, {
+            title: pageTitle,
+            url: pageUrl,
+            commentCount: firebase.firestore.FieldValue.increment(1),
+            lastCommentAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        try {
+            await batch.commit();
+            commentInput.value = '';
+            
+            // Refresh the comments list to show the new comment
+            document.getElementById('comments-list').innerHTML = '';
+            lastVisibleComment = null;
+            allCommentsLoaded = false;
+            fetchComments(pageId, initialLimit);
+
+        } catch (error) {
+            console.error('Error posting comment:', error);
+            alert('There was an error posting your comment.');
+        }
+    }
+
+    /**
+     * Controls the visibility of the comment form based on auth state.
+     */
+    function setupAuthUI() {
+        const commentForm = document.getElementById('comment-form');
+        const loginPrompt = document.getElementById('comment-login-prompt');
+        const userAvatar = document.getElementById('comment-user-avatar');
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loginPrompt.classList.add('hidden');
+                commentForm.classList.remove('hidden');
+                userAvatar.src = user.photoURL || 'https://placehold.co/48x48/CCCCCC/666666?text=U';
+            } else {
+                loginPrompt.classList.remove('hidden');
+                commentForm.classList.add('hidden');
+            }
+        });
+    }
+
+    /**
+     * Listens for real-time updates on the comment count.
+     */
+    function loadCommentCount(pageId) {
+        const countBadge = document.getElementById('comment-count-badge');
+        if (!countBadge) return;
+
+        const pageDocRef = db.collection('comments').doc(pageId);
+
+        pageDocRef.onSnapshot(doc => {
+            if (doc.exists) {
+                const count = doc.data().commentCount || 0;
+                countBadge.textContent = `(${count})`;
+            } else {
+                countBadge.textContent = '(0)';
+            }
+        }, error => {
+            console.error("Error fetching comment count:", error);
+            countBadge.textContent = '';
+        });
+    }
+});
+</script>

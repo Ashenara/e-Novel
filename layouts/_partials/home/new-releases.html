@@ -1,0 +1,16 @@
+<div class="flex flex-nowrap overflow-x-auto pb-4 hide-scrollbar space-x-4">
+    {{ $allNovelOverviews := where (where site.Pages "Section" "novels") "IsNode" true }}
+    {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
+
+    {{ $newReleases := first 15 (sort $allNovelOverviews "PublishDate" "desc") }}
+    
+    {{ if $newReleases }}
+        {{ range $newReleases }}
+            {{ partial "card/novel-card.html" . }}
+        {{ end }}
+    {{ else }}
+        <p class="text-(--color-muted-foreground) shrink-0">
+            No new releases found.
+        </p>
+    {{ end }}
+</div>

@@ -1,0 +1,45 @@
+{{- $src := .Destination -}}
+{{- $alt := .PlainText | plainify -}}
+{{- $caption := .Title -}}
+
+{{- $image := .Page.Resources.GetMatch (printf "%s" $src) -}}
+
+{{- if not $image -}}
+    {{- /* Handle external images or images from the static folder */ -}}
+    {{- $image = resources.Get $src -}}
+{{- end -}}
+
+{{- $fullSrc := $src -}}
+{{- if $image -}}
+    {{- $fullSrc = $image.RelPermalink -}}
+{{- end -}}
+
+<figure class="my-6">
+    <a href="{{ $fullSrc | relURL }}"
+       class="block w-full cursor-zoom-in"
+       data-gallery="gallery-{{ .Page.File.UniqueID }}"
+       data-caption="{{ with $caption }}{{ . }}{{ else }}{{ $alt }}{{ end }}">
+        
+        <img loading="lazy"
+             src="{{ $fullSrc | relURL }}"
+             alt="{{ $alt }}"
+             class="w-full h-auto rounded-lg shadow-lg mx-auto"
+             {{- if and $image (ne (path.Ext $src) ".svg") -}}
+                width="{{ $image.Width }}"
+                height="{{ $image.Height }}"
+                {{- if (default true .Page.Site.Params.imageProcessing.content.enabled) -}}
+                    {{- $small := $image.Resize `480x` -}}
+                    {{- $medium := $image.Resize `768x` -}}
+                    {{- $large := $image.Resize `1024x` -}}
+                    srcset="{{ $small.RelPermalink }} 480w, {{ $medium.RelPermalink }} 768w, {{ $large.RelPermalink }} 1024w"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 75vw, 60vw"
+                {{- end -}}
+             {{- end }}>
+    </a>
+    
+    {{- with $alt -}}
+    <figcaption class="mt-3 text-sm text-center text-(--color-muted-foreground) italic">
+        {{ . | $.Page.RenderString }}
+    </figcaption>
+    {{- end -}}
+</figure>

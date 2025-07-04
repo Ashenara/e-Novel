@@ -1,0 +1,64 @@
+<div class="p-6 rounded-lg shadow-md bg-(--color-card) text-center">
+
+    {{ with .Site.Params.avatar }}
+    <img loading="lazy" src="{{ . | relURL }}" alt="{{ $.Site.Params.author | default " Avatar" }}"
+        class="w-24 h-24 rounded-full object-cover mb-4 shadow-lg mx-auto">
+    {{ end }}
+
+    {{ with .Site.Params.author }}
+    <h3 class="text-2xl font-bold text-(--color-foreground) mb-2">{{ . }}</h3>
+    {{ end }}
+
+    {{ with .Site.Params.description }}
+    <p class="text-(--color-muted-foreground) leading-relaxed mb-6">{{ . }}</p>
+    {{ else }}
+    <p class="text-(--color-muted-foreground) leading-relaxed mb-6">No description provided.</p>
+    {{ end }}
+
+    {{ if .Site.Params.social }}
+    <div class="flex flex-wrap justify-center gap-3 mb-8">
+        {{ range .Site.Params.social }}
+        {{ if reflect.IsMap . }}
+        <a href="{{ .url }}" target="_blank" rel="noopener noreferrer" title="{{ .name }}"
+            class="w-10 h-10 flex items-center justify-center rounded-lg bg-(--color-muted) text-(--color-muted-foreground) hover:bg-(--color-border) hover:text-(--color-primary) transition-all dark:bg-(--color-muted-dark) dark:text-(--color-muted-foreground-dark) dark:hover:bg-(--color-border-dark) dark:hover:text-(--color-primary-dark)">
+            {{ with .icon }}
+            {{ with resources.Get . }}
+            <img src="{{ .RelPermalink }}" alt="" class="w-5 h-5 themeable-icon">
+            {{ end }}
+            {{ else }}
+            <span class="text-xs font-bold">{{ .name | substr 0 2 }}</span>
+            {{ end }}
+        </a>
+        {{ else }}
+        <a href="{{ . }}" target="_blank" rel="noopener noreferrer" title="Social Link"
+            class="w-10 h-10 flex items-center justify-center rounded-lg bg-(--color-muted) text-(--color-muted-foreground) hover:bg-(--color-border) hover:text-(--color-primary) transition-all">
+            <!-- Generic Link Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+        </a>
+        {{ end }}
+        {{ end }}
+    </div>
+    {{ end }}
+
+    {{ with .Site.Params.donate }}
+    <div class="border-t border-(--color-border) pt-6">
+        <h4 class="text-sm font-bold text-(--color-muted-foreground) mb-4 uppercase tracking-wider">Support Us</h4>
+        <div class="flex justify-center gap-4">
+            {{ range . }}
+            <a href="{{ .url }}" target="_blank" rel="noopener noreferrer" title="Donate via {{ .name }}"
+                class="w-12 h-12 flex items-center justify-center rounded-full bg-(--color-primary) text-white hover:bg-(--color-primary-hover) transition-all duration-200 transform hover:scale-110">
+
+                {{ with .icon }}
+                {{ with resources.Get . }}
+                <img src="{{ .RelPermalink }}" alt="" class="w-6 h-6 invert brightness-0">
+                {{ end }}
+                {{ end }}
+            </a>
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}

@@ -1,0 +1,34 @@
+{{ $ctx := . }}
+
+{{ $imageSrc := "" }}
+{{ with $ctx.Params.image }}
+    {{ $imagePath := . }}
+    {{ $imageResource := $ctx.Resources.GetMatch $imagePath }}
+    {{ if $imageResource }}
+        {{ $imageSrc = ($imageResource.Fill "400x400").RelPermalink }}
+    {{ else }}
+        {{ $imageSrc = $imagePath | relURL }}
+    {{ end }}
+{{ end }}
+
+<a href="{{ $ctx.Permalink }}" class="group flex flex-col w-[200px] shrink-0 bg-(--color-card) rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+    <div class="relative">
+        <div class="aspect-video w-full overflow-hidden">
+            {{ if $imageSrc }}
+                <img loading="lazy" src="{{ $imageSrc }}" alt="" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+            {{ else }}
+                <div class="w-full h-full bg-(--color-muted)"></div>
+            {{ end }}
+        </div>
+    </div>
+    <div class="p-3 flex flex-col grow">
+        <div>
+            <h3 class="text-sm font-bold text-(--color-foreground) leading-tight line-clamp-2 group-hover:text-(--color-primary) transition-colors">
+                {{ $ctx.Title }}
+            </h3>
+        </div>
+        <div class="mt-auto pt-2 text-xs text-(--color-muted-foreground)">
+            <span>{{ $ctx.PublishDate.Format "Jan 2, 2006" }}</span>
+        </div>
+    </div>
+</a>

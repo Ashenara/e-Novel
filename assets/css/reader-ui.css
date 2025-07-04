@@ -1,0 +1,205 @@
+/* assets/css/reader-ui.css */
+
+/* --- Base Variables & Theming --- */
+:root {
+  --site-bg: #f0f2f5;
+  --site-text: #222;
+  --bar-bg: #ffffff;
+  --bar-text: #333;
+  --bar-border: #e0e0e0;
+  --setting-active-bg: #333;
+  --setting-active-text: #fff;
+  --accent-color: #007bff;
+  --reader-font-size: 18px;
+  --reader-line-height: 1.7;
+  --reader-font-family: "'Nunito Sans', sans-serif";
+  --reader-content-width: 800px;
+  --reader-paragraph-spacing: 0.8em; 
+}
+
+body {
+  background-color: var(--site-bg);
+  transition: background-color 0.3s ease;
+}
+
+/* --- Main Content Area --- */
+#reader-content {
+  color: var(--site-text);
+  /* THE FIX: Add !important to font-size to ensure it always applies. */
+  font-size: var(--reader-font-size);
+  max-width: var(--reader-content-width);
+  margin: 0 auto;
+  padding: 1rem 0.7rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+/* 
+  THE FIX: Add fixed spacing for all headings inside the reader content.
+  This creates a clear visual separation.
+*/
+#reader-content h1,
+#reader-content h2,
+#reader-content h3,
+#reader-content h4,
+#reader-content h5,
+#reader-content h6 {
+  margin-top: 1em;   /* More space above the heading */
+  margin-bottom: 2em;  /* Less space below, to group it with its text */
+  font-weight: 500
+  /* You can also adjust font-weight or color here if you like */
+  /* font-weight: 700 !important; */
+}
+
+#reader-content p {
+  /* THE FIX: Add !important to paragraph spacing. */
+  margin-bottom: var(--reader-paragraph-spacing);
+}
+
+/* 
+  THE FIX: Apply font-family and line-height directly to text elements
+  with !important to override all other theme styles.
+*/
+#reader-content p,
+#reader-content li,
+#reader-content blockquote {
+  font-family: var(--reader-font-family);
+  line-height: var(--reader-line-height);
+}
+
+/* --- Reader Color Themes --- */
+body.theme-light #reader-content { background-color: #fafafa; color: #212529; }
+body.theme-mint #reader-content { background-color: #e6f8f5; color: #2a5c53; }
+body.theme-sepia #reader-content { background-color: #fbf0d9; color: #5b4636; }
+body.theme-dark #reader-content { background-color: #18181b; color: #e4e4e7; }
+
+/* --- Reader Sidebar (TOC) --- */
+#reader-sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 320px; max-width: 80%; background: var(--color-background);
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 1001;
+  transform: translateX(-100%); transition: transform 0.3s ease-in-out;
+  display: flex; flex-direction: column;
+}
+#reader-sidebar.visible { transform: translateX(0); }
+#reader-sidebar .sidebar-content { padding: 1.5rem; overflow-y: auto; }
+#reader-sidebar h3 { margin-top: 0; color: var(--color-foreground); }
+#reader-sidebar .toc-list ul { list-style-type: none; padding-left: 0; }
+#reader-sidebar .toc-list a { text-decoration: none; color: var(--color-foreground); display: block; padding: 0.6rem 0; border-bottom: 1px solid var(--bar-border);}
+#reader-sidebar .toc-list a:hover { color: var(--color-primary); }
+#reader-sidebar .toc-list a.active { color: var(--color-primary); font-weight: bold; }
+
+/* --- Centered UI Controls Container (Bottom) --- */
+#reader-ui-container {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  max-width: var(--reader-content-width); margin: 0 auto; z-index: 999;
+  transform: translateY(100%); transition: transform 0.3s ease-in-out;
+  display: flex; flex-direction: column;
+}
+#reader-ui-container.visible { transform: translateY(0); }
+
+/* --- Top Nav Bar (Prev/Next) --- */
+#reader-top-nav-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--bar-bg); border: 1px solid var(--bar-border);
+  border-bottom: 1px solid var(--bar-border);
+  border-top-left-radius: 8px; border-top-right-radius: 8px;
+  padding: 0.75rem 1.5rem;
+}
+#reader-top-nav-bar .nav-btn {
+  color: var(--bar-text); text-decoration: none;
+  font-weight: 600; font-size: 0.9rem;
+}
+#reader-top-nav-bar .nav-btn.disabled { color: #aaa; cursor: not-allowed; }
+#reader-top-nav-bar .chapter-info { font-size: 0.9rem; color: #777; }
+
+/* --- Panels Container (Settings) --- */
+.reader-panel {
+  display: none; background: var(--bar-bg);
+  padding: 1.5rem; color: var(--bar-text); border-top: none; 
+}
+.reader-panel.visible { display: block; }
+.panel-content { display: flex; flex-direction: column; gap: 1.25rem; max-height: 50vh; overflow-y: auto; }
+.setting-item { display: flex; justify-content: space-between; align-items: center; }
+.setting-item label { font-size: 0.9rem; font-weight: 600; }
+.setting-group { display: flex; border: 1px solid var(--bar-border); border-radius: 6px; overflow: hidden; }
+.setting-group button { background: transparent; color: var(--bar-text); border: none; border-left: 1px solid var(--bar-border); padding: 0.5rem 1rem; cursor: pointer; flex-grow: 1; transition: background-color 0.2s, color 0.2s; font-size: 0.9rem; }
+.setting-group button:first-child { border-left: none; }
+.setting-group button:not(.value-display):hover { background: rgba(0,0,0,0.05); }
+.setting-group button.active { background: var(--setting-active-bg); color: var(--setting-active-text); }
+.setting-group button.value-display { background: var(--setting-active-bg); color: var(--setting-active-text); cursor: default; min-width: 60px; text-align: center; }
+.setting-group .swatch { width: 36px; height: 36px; padding: 0; border-radius: 0; position: relative; }
+.setting-group .swatch.active { box-shadow: inset 0 0 0 2px var(--accent-color); }
+
+/* --- Bottom Icon Bar --- */
+#reader-bottom-bar {
+  display: flex; background: var(--bar-bg);
+  border-top: 1px solid var(--bar-border);
+  border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+#reader-bottom-bar button, 
+#reader-bottom-bar .icon-btn {
+  flex: 1; background: none; border: none; color: var(--bar-text); padding: 0.5rem 0;
+  cursor: pointer; opacity: 0.6; position: relative; display: flex;
+  align-items: center; justify-content: center; text-decoration: none;
+}
+#reader-bottom-bar button:hover,
+#reader-bottom-bar .icon-btn:hover,
+#reader-bottom-bar button.active { opacity: 1; color: var(--accent-color); }
+
+/* --- Tooltips --- */
+[data-tooltip]::after {
+  content: attr(data-tooltip); position: absolute; bottom: 120%; left: 50%;
+  transform: translateX(-50%); background: #333; color: #fff; padding: 4px 8px;
+  border-radius: 4px; font-size: 0.75rem; white-space: nowrap; opacity: 0;
+  visibility: hidden; transition: opacity 0.2s;
+}
+[data-tooltip]:hover::after { opacity: 1; visibility: visible; }
+
+/* --- NEW: Page Bottom Navigation (A duplicate of the toolbar's nav) --- */
+.page-bottom-nav {
+  /* Layout: Center on page and match content width */
+  max-width: var(--reader-content-width);
+  margin: 3rem auto; /* Add generous space above/below, 4px left/right */
+  
+  /* Visuals: Copied from #reader-top-nav-bar for perfect matching */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bar-bg);
+  border: 1px solid var(--bar-border);
+  border-radius: 8px; /* Rounded corners on all sides */
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Add a subtle shadow to lift it off the page */
+}
+@media (max-width: 768px) {
+.page-bottom-nav {
+  margin: 3rem 1rem; /* Add generous space above/below, 4px left/right */
+}
+}
+/* Style the buttons and text inside to match the toolbar */
+.page-bottom-nav .nav-btn {
+  color: var(--bar-text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.5rem; /* Add some padding for easier clicking */
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.page-bottom-nav .nav-btn:not(.disabled):hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.page-bottom-nav .nav-btn.disabled {
+  color: #aaa;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.page-bottom-nav .chapter-info {
+  font-size: 0.9rem;
+  color: #777;
+}

@@ -1,0 +1,78 @@
+<div class="bg-(--color-card) p-0 md:p-4 rounded-lg md:shadow-md overflow-x-auto">
+    <table class="w-full text-sm text-left">
+        <thead class="text-xs text-(--color-muted-foreground) uppercase bg-(--color-muted)">
+            <tr>
+                <th scope="col" class="px-4 py-3 rounded-l-lg">Novel</th>
+                <th scope="col" class="px-4 py-3">Latest Chapter</th>
+                <th scope="col" class="px-4 py-3 hidden md:table-cell">Author</th>
+                <th scope="col" class="px-4 py-3 hidden lg:table-cell rounded-r-lg">Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ $allChapters := where .Site.RegularPages "Params.chapter_number" "ne" nil }}
+            {{ $latestChapters := sort $allChapters "PublishDate" "desc" }}
+            {{ $novelsInTable := slice }}
+            {{ $limit := 10 }}
+            {{ $novelsFound := 0 }}
+            
+            {{ range $latestChapters }}
+                {{ if lt (len $novelsInTable) $limit }}
+                    {{ $novel := .Parent }}
+                    {{ if and $novel (not (in $novelsInTable $novel.Permalink)) }}
+                        {{ $novelsInTable = $novelsInTable | append $novel.Permalink }}
+                        {{ $novelsFound = add $novelsFound 1 }}
+                        
+                        <tr class="border-b border-(--color-border) hover:bg-(--color-muted) transition-colors">
+                            <!-- Novel Title & Cover -->
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <a href="{{ $novel.Permalink }}" class="shrink-0">
+                                        {{ $imageSrc := "" }}
+                                        {{ with $novel.Params.image }}{{ $imageSrc = . | relURL }}{{ else }}{{ $imageSrc = "https://placehold.co/48x64/27272A/FFFFFF?text=C" }}{{ end }}
+                                        <img loading="lazy" src="{{ $imageSrc }}" alt="" class="w-12 h-16 object-cover rounded-md shadow-sm">
+                                    </a>
+                                    <div>
+                                        <a href="{{ $novel.Permalink }}" class="font-bold text-(--color-foreground) hover:text-(--color-primary) transition-colors line-clamp-2">
+                                            {{ $novel.Title }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <!-- Latest Chapter -->
+                            <td class="px-4 py-3">
+                                <a href="{{ .Permalink }}" class="text-(--color-muted-foreground) hover:text-(--color-primary) transition-colors line-clamp-2">
+                                    {{ .Title }}
+                                </a>
+                            </td>
+                            <!-- Author -->
+                            <td class="px-4 py-3 hidden md:table-cell">
+                                {{ $writer := "N/A" }}
+                                {{ with $novel.Params.writer }}
+                                {{ if reflect.IsSlice . }}
+                                {{ $writer = index . 0 }}
+                                {{ else }}
+                                {{ $writer = . }}
+                                {{ end }}
+                                {{ end }}
+                                <span class="text-(--color-muted-foreground)">{{ $writer }}</span>
+                            </td>
+                            <!-- Updated Date -->
+                            <td class="px-4 py-3 hidden lg:table-cell">
+                                <span class="text-(--color-muted-foreground) font-medium">{{ .PublishDate.Format "Jan 2, 2006" }}</span>
+                            </td>
+                        </tr>
+
+                    {{ end }}
+                {{ end }}
+            {{ end }}
+
+            {{ if eq $novelsFound 0 }}
+                <tr>
+                    <td colspan="4" class="text-center text-(--color-muted-foreground) py-8">
+                        No recent chapter releases found.
+                    </td>
+                </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>

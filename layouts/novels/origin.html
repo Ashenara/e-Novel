@@ -1,0 +1,38 @@
+{{ define "main" }}
+<div class="container mx-auto px-4 py-8 space-y-12">
+    
+    {{ partial "components/breadcrumb.html" . }}
+
+    {{/* --- Smart Title Block --- */}}
+    <h1 class="text-4xl font-extrabold text-(--color-foreground) mb-8 text-center">
+        {{ .Title }}
+    </h1>
+    {{ with .Content }}
+        <div class="prose dark:prose-invert max-w-3xl mx-auto text-center">{{ . }}</div>
+    {{ end }}
+
+    <!-- Novels Grid -->
+    <section>
+        {{ $novelsOnly := where .Pages "IsNode" true }}
+        {{ $novelsOnly = where $novelsOnly "Params.excludeFromLists" "!=" true }}
+        
+        {{ $paginator := .Paginate $novelsOnly.ByTitle 30 }}
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+            {{ if gt (len $paginator.Pages) 0 }}
+                {{ range $paginator.Pages }}
+                    {{ partial "card/responsive-novel-card.html" . }}
+                {{ end }}
+            {{ else }}
+                <p class="text-(--color-muted-foreground) col-span-full text-center py-10">
+                    There are no novels listed with the origin "{{ .Title }}" yet.
+                </p>
+            {{ end }}
+        </div>
+    </section>
+
+    <!-- Pagination Links -->
+    {{ partial "pagination.html" $paginator }}
+
+</div>
+{{ end }}

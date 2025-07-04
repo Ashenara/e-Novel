@@ -1,0 +1,108 @@
+{{ define "main" }}
+<article>
+    <!-- This ID is CRUCIAL for the JavaScript to find the clickable area -->
+    <main id="reader-content" class="post-content">
+        <a href="{{ .CurrentSection.RelPermalink }}" class="text-3xl font-bold mb-4 hover:underline">{{ .Parent.Title }}</a>
+        {{ .Content }}
+    </main>
+</article>
+
+<!-- NEW: Chapter Navigation that duplicates the toolbar's style -->
+    {{ $chapters := .Parent.Pages.ByParam "chapter_number" }}
+    {{ $current := . }}
+    <nav class="page-bottom-nav">
+        {{ $index := -1 }}
+        {{ range $i, $c := $chapters }}
+            {{ if eq $c.RelPermalink $current.RelPermalink }}
+                {{ $index = $i }}
+            {{ end }}
+        {{ end }}
+
+        {{ if gt $index 0 }}
+            {{ $prev := index $chapters (sub $index 1) }}
+            <a href="{{ $prev.RelPermalink }}" class="nav-btn">← Prev</a>
+        {{ else }}
+            <span class="nav-btn disabled">← Prev</span>
+        {{ end }}
+
+        <div class="chapter-info">
+            Chapter {{ .Params.chapter_number | default "N/A" }}
+        </div>
+
+        {{ if lt (add $index 1) (len $chapters) }}
+            {{ $next := index $chapters (add $index 1) }}
+            <a href="{{ $next.RelPermalink }}" class="nav-btn">Next →</a>
+        {{ else }}
+            <span class="nav-btn disabled">Next →</span>
+        {{ end }}
+    </nav>
+    <!-- End of new section -->
+
+<!-- Include our reader UI elements -->
+{{ partial "reader/reader-ui.html" . }}
+{{ partial "reader/reader-sidebar.html" . }}
+
+<!-- Include our JavaScript file at the end of the body -->
+{{ $readerJS := resources.Get "js/reader-ui.js" | minify }}
+<script src="{{ $readerJS.RelPermalink }}"></script>
+{{ $pageData := dict
+    "novelId"      (.Parent.File.UniqueID | default (.Parent.Title | urlize))
+    "novelTitle"   .Parent.Title
+    "chapterTitle" .Title
+    "chapterLink"  (.Permalink | absURL)
+}}
+
+<script id="page-data" type="application/json">
+    {{ $pageData | jsonify | safeJS }}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // This is a much cleaner way to wait for Firebase
+    const checkFirebase = setInterval(() => {
+        if (window.firebase?.auth && window.firebase?.firestore) {
+            clearInterval(checkFirebase);
+            initChapterPage();
+        }
+    }, 100);
+
+    function initChapterPage() {
+        // Find our JSON data script tag and parse it
+        const pageDataElement = document.getElementById('page-data');
+        if (!pageDataElement) {
+            console.error('Could not find page data element!');
+            return;
+        }
+        const pageData = JSON.parse(pageDataElement.textContent);
+        
+        // Use the parsed data to track history
+        trackReadingHistory(firebase.auth(), firebase.firestore(), pageData);
+    }
+
+    function trackReadingHistory(auth, db, data) {
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                console.log('History not tracked: User not logged in.');
+                return;
+            }
+
+            const historyData = {
+                novelTitle: data.novelTitle,
+                chapterTitle: data.chapterTitle,
+                lastReadLink: data.chapterLink,
+                lastReadAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            const historyDocRef = db.collection('users').doc(user.uid).collection('history').doc(data.novelId);
+
+            historyDocRef.set(historyData, { merge: true })
+                .then(() => {
+                    console.log(`History updated for "${historyData.novelTitle}": Read "${historyData.chapterTitle}"`);
+                })
+                .catch(error => {
+                    console.error("Error updating history:", error);
+                });
+        });
+    }
+});
+</script>
+{{ end }}

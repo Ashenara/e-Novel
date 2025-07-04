@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.LanguageCode }}" dir="{{ or site.Language.LanguageDirection `ltr` }}">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body class="bg-(--color-background) text-(--color-foreground)">
+  <header>
+    {{ partial "header.html" . }}
+  </header>
+
+  <main class="container mx-auto grow pt-20">
+    {{ block "main" . }}{{ end }}
+  </main>
+  
+  <footer>
+    {{ partial "footer.html" . }}
+  </footer>
+  {{ partial "search-modal.html" . }}
+  {{ partial "scripts.html" . }}
+  {{ partial "firebase/firebase-init.html" . }}
+  {{ partial "firebase/auth-listener.html" . }}
+</body>
+</html>
