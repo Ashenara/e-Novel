@@ -12,7 +12,7 @@
                 <div class="shrink-0">
                     <img src="{{ with .Params.image }}{{ . | relURL }}{{ else }}
                     {{ "https://placehold.co/400x600/27272A/FFFFFF?text=Novel+Cover" }}{{ end }}"
-                        alt="{{ .Title }} Cover" class="w-full h-auto rounded-xl shadow-lg object-cover"
+                        alt="Novel Cover for {{ .Title }}" class="w-full h-auto rounded-xl shadow-lg object-cover"
                         onerror="this.onerror=null;this.src='https://placehold.co/400x600/CCCCCC/666666?text=Image+Missing';">
                 </div>
 

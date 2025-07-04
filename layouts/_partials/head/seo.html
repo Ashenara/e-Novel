@@ -1,51 +1,171 @@
+{{- /*
+    seo.html
+    
+    This partial generates all the essential SEO meta tags, Open Graph tags,
+    Twitter Card tags, and Schema.org JSON-LD structured data.
+    
+    Usage: {{ partial "seo.html" . }} in your <head> section.
+*/ -}}
+
 {{- $page := . -}}
 {{- $site := .Site -}}
 
+{{/* ============================================= */}}
+{{/* 1. DEFINE CORE SEO VARIABLES                  */}}
+{{/* ============================================= */}}
+
+{{- /* --- Page Title --- */}}
 {{- $pageTitle := "" -}}
 {{- if $page.IsHome -}}
-    {{- $pageTitle = $site.Title -}}
+    {{- /* Homepage gets the descriptive title from the site config */ -}}
+    {{- $pageTitle = printf "%s | %s" $site.Params.description $site.Title -}}
 {{- else -}}
+    {{- /* Other pages get "Page Title | Site Title" */ -}}
     {{- $pageTitle = printf "%s | %s" $page.Title $site.Title -}}
 {{- end -}}
 
+{{- /* --- Page Description --- */}}
+{{- /* Cascade logic: Page's description -> Page's summary -> Site's default description */ -}}
 {{- $pageDesc := "" -}}
 {{- with $page.Params.description -}}
     {{- $pageDesc = . -}}
 {{- else -}}
-    {{- $pageDesc = $page.Summary | default $site.Params.description -}}
+    {{- with $page.Summary -}}
+        {{- $pageDesc = . -}}
+    {{- else -}}
+        {{- $pageDesc = $site.Params.description -}}
+    {{- end -}}
 {{- end -}}
-{{- $pageDesc = $pageDesc | plainify | truncate 200 -}}
+{{- /* Clean and truncate the description for best practice (160 chars) */ -}}
+{{- $pageDesc = $pageDesc | plainify | safeHTML | truncate 160 -}}
 
+{{- /* --- Page Image for Social Sharing --- */}}
 {{- $pageImage := "" -}}
-{{- with $page.Params.image -}}
-    {{- $pageImage = . | absURL -}}
+{{- with .Params.image | or .Params.cover -}}
+    {{- /* Use 'image' or 'cover' param from front matter first */ -}}
+    {{- $pageImage = absURL . -}}
 {{- else -}}
+    {{- /* Fallback to a site-wide default image from hugo.toml */ -}}
     {{- with $site.Params.images -}}
         {{- $pageImage = index . 0 | absURL -}}
     {{- end -}}
 {{- end -}}
+
+
+{{/* ============================================= */}}
+{{/* 2. RENDER HTML TAGS                           */}}
+{{/* ============================================= */}}
 
 <!-- The HTML <title> tag -->
 <title>{{ $pageTitle }}</title>
 
 <!-- Basic SEO meta tags -->
 <meta name="description" content="{{ $pageDesc }}">
-<meta name="author" content="{{ $site.Params.author | default "Arashe" }}">
+<meta name="author" content="{{ $site.Params.author.name | default "Ashenara" }}">
 
 <!-- Canonical URL -->
 <link rel="canonical" href="{{ .Permalink }}">
 
 <!-- Open Graph Tags (for Facebook, LinkedIn, etc.) -->
-<meta property="og:title" content="{{ $page.Title }}">
+<meta property="og:title" content="{{ $pageTitle }}"> {{/* Use the full, constructed title */}}
 <meta property="og:description" content="{{ $pageDesc }}">
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:site_name" content="{{ $site.Title }}">
-{{ with $pageImage }}<meta property="og:image" content="{{ . }}">{{ end }}
+{{- with $pageImage }}
+<meta property="og:image" content="{{ . }}">
+{{- end }}
 
 <!-- Twitter Card Tags -->
 <meta name="twitter:card" content="{{ if $pageImage }}summary_large_image{{ else }}summary{{ end }}">
-{{ with $site.Params.twitter }}<meta name="twitter:site" content="@{{ . }}">{{ end }}
-<meta name="twitter:title" content="{{ $page.Title }}">
+{{- with $site.Params.author.twitter }}
+<meta name="twitter:site" content="@{{ . }}">
+<meta name="twitter:creator" content="@{{ . }}">
+{{- end }}
+<meta name="twitter:title" content="{{ $pageTitle }}"> {{/* Use the full, constructed title */}}
 <meta name="twitter:description" content="{{ $pageDesc }}">
-{{ with $pageImage }}<meta name="twitter:image" content="{{ . }}">{{ end }}
+{{- with $pageImage }}
+<meta name="twitter:image" content="{{ . }}">
+{{- end }}
+
+
+{{/* ============================================= */}}
+{{/* 3. SCHEMA.ORG JSON-LD STRUCTURED DATA         */}}
+{{/* ============================================= */}}
+
+{{- /* Define booleans for page types for clarity */ -}}
+{{- $isNovelPage := and (eq .Type "novels") (eq .Kind "section") (not .IsHome) (ne .Permalink (absURL "novels/")) -}}
+{{- $isBlogPage := and (eq .Type "blog") .IsPage -}}
+
+<script type="application/ld+json">
+{{- if $isNovelPage -}}
+{
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "name": "{{ .Title }}",
+    "description": "{{ $pageDesc }}",
+    "url": "{{ .Permalink }}",
+    {{- with .Params.writer }}
+"author": [
+  {{- range $i, $authorName := . -}}
+    {{- if $i }},{{ end -}}
+    {
+      "@type": "Person",
+      "name": "{{ $authorName }}"
+    }
+  {{- end -}}
+],
+{{- end }}
+    {{- with $pageImage }}
+    "image": "{{ . }}",
+    {{- end }}
+    "inLanguage": "{{ $site.Language.Lang | default "en-us" }}"
+}
+{{- else if $isBlogPage -}}
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "{{ .Title }}",
+    "description": "{{ $pageDesc }}",
+    "url": "{{ .Permalink }}",
+    {{- with $pageImage }}
+    "image": "{{ . }}",
+    {{- end }}
+    "datePublished": "{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}",
+    "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
+    "author": {
+        "@type": "Person",
+        "name": "{{ $site.Params.author.name | default "Ashenara" }}"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ $site.Title }}",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ $site.Params.logo | absURL }}"
+        }
+    }
+}
+{{- else if .IsHome -}}
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{{ $site.Title }}",
+    "description": "{{ $site.Params.description }}",
+    "url": "{{ .Permalink }}",
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ $site.Title }}",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ $site.Params.logo | absURL }}"
+        }
+    },
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ .Site.BaseURL }}search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+    }
+}
+{{- end -}}
+</script>

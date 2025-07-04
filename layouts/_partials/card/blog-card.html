@@ -15,7 +15,7 @@
     
     {{ with $imageSrc }}
     <div class="shrink-0 w-1/3 h-full">
-        <img loading="lazy" src="{{ . }}" alt="" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+        <img loading="lazy" src="{{ . }}" alt="Cover for {{ $ctx.Title }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
     </div>
     {{ end }}
 

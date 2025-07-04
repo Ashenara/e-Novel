@@ -11,7 +11,7 @@
             <header class="mb-8">
                 {{ with .Params.image }}
                 <div class="mb-6 rounded-lg overflow-hidden">
-                    <img loading="lazy" src="{{ . | relURL }}" alt="{{ $.Title }} featured image" class="w-full h-auto object-cover max-h-[450px] rounded-lg shadow-lg">
+                    <img loading="lazy" src="{{ . | relURL }}" alt="Cover for {{ $.Title }}" class="w-full h-auto object-cover max-h-[450px] rounded-lg shadow-lg">
                 </div>
                 {{ end }}
                 <h1 class="text-4xl md:text-5xl font-extrabold text-(--color-foreground) mb-4 leading-tight">

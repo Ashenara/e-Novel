@@ -29,7 +29,7 @@
                                     <a href="{{ $novel.Permalink }}" class="shrink-0">
                                         {{ $imageSrc := "" }}
                                         {{ with $novel.Params.image }}{{ $imageSrc = . | relURL }}{{ else }}{{ $imageSrc = "https://placehold.co/48x64/27272A/FFFFFF?text=C" }}{{ end }}
-                                        <img loading="lazy" src="{{ $imageSrc }}" alt="" class="w-12 h-16 object-cover rounded-md shadow-sm">
+                                        <img loading="lazy" src="{{ $imageSrc }}" alt="Novel cover for {{ $novel.Title }}" class="w-12 h-16 object-cover rounded-md shadow-sm">
                                     </a>
                                     <div>
                                         <a href="{{ $novel.Permalink }}" class="font-bold text-(--color-foreground) hover:text-(--color-primary) transition-colors line-clamp-2">

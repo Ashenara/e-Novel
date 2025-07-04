@@ -5,20 +5,15 @@ theme = ["e-Novel"]
 title = ""
 
 [params]
+description = "Download Free Epub Novels - Explore a vast collection in Fantasy, Sci-Fi, Romance, and more."
+logo = "/images/alogo.png" # Path to your site logo
+
 # Enable emoji support globally for better content presentation
 enableEmoji = true
 
-# Site configuration parameters for e-Novel Hugo theme
-logo = "/images/logo.png" # Path to your site logo
-
-# About site parameters
-author = "Ashenara"                                                                                                                                      # Name displayed with avatar
-avatar = "/images/alogo.png"                                                                                                                             # Path to your avatar image (e.g., in static/images)
-description = "Discover and read a curated collection of EPUB novels from various genres. Develop e-novel | e-books | e-reading website with hugo."
-
 # Hero section parameters
-#heroImage = "/images/renegade.webp" # Path to your hero image (e.g., in static/images)
-#heroImageAlt = "Renegade Immortal"  # Alt text for the hero image
+heroImage = "/images/renegade.webp" # Path to your hero image (e.g., in static/images)
+heroImageAlt = "Renegade Immortal"  # Alt text for the hero image
 
 # Comments configuration
 enableComments = true
@@ -26,8 +21,25 @@ enableComments = true
 # Used for Google Analytics. The script will only render if this is set.
 googleAnalytics = "" # Replace with your GA4 Measurement ID
 
-# Used for the @YourSite handle in Twitter cards
-twitter = ""
+  [params.author]
+  name = "Ashenara"
+  twitter = "" # Optional, without the @
+  avatar = "/images/alogo.png"
+
+  [params.favicons]
+    apple_touch_icon = "/apple-touch-icon.png"
+    favicon_32x32 = "/favicon-32x32.png"
+    favicon_16x16 = "/favicon-16x16.png"
+    manifest = "/site.webmanifest"
+    shortcut_icon = "/favicon.ico"
+
+  [params.firebase]
+    apiKey = ""
+    authDomain = ""
+    projectId = ""
+    storageBucket = ""
+    messagingSenderId = ""
+    appId = ""
 
 # About Section Social Links and Donate Options
 [[params.social]]
@@ -50,14 +62,6 @@ name = "PayPal"
 url = "https://paypal.me/ashenara"
 icon = "/icons/paypal.svg"
 # Add more donate options as needed
-
-[params.firebase]
-  apiKey = ""
-  authDomain = ""
-  projectId = ""
-  storageBucket = ""
-  messagingSenderId = ""
-  appId = ""
 
 # Topbar Menu
 [[menus.main]]
