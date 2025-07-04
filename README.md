@@ -34,7 +34,7 @@
     git submodule update --init --recursive
     
 #### Update Submodule
-    git submodule update --remote --merge
+    git submodule update --remote
     git commit -m "Update submodule e-Novel"
     git push
     
