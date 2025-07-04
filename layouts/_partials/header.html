@@ -6,7 +6,7 @@
             {{ with .Site.Params.logo }}
                 <img loading="lazy" src="{{ . | relURL }}" alt="Site Logo" class="h-10 w-10 rounded-full object-cover"/>
             {{ end }}
-            <span class="text-xl font-bold text-(--color-foreground) sm:block">{{ .Site.Title }}</span>
+            <span class="text-xl font-bold text-(--color-foreground) sm:block"><h1>{{ .Site.Title }}</h1></span>
         </a>
 
         <!-- Right Side Actions Wrapper -->

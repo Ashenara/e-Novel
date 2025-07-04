@@ -46,7 +46,7 @@
     {{- $pageImage = absURL . -}}
 {{- else -}}
     {{- /* Fallback to a site-wide default image from hugo.toml */ -}}
-    {{- with $site.Params.images -}}
+    {{- with $site.Params.logo -}}
         {{- $pageImage = index . 0 | absURL -}}
     {{- end -}}
 {{- end -}}
