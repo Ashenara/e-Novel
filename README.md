@@ -35,6 +35,7 @@
     
 #### Update Submodule
     git submodule update --remote
+    git add .
     git commit -m "Update submodule e-Novel"
     git push
     
