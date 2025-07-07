@@ -18,7 +18,7 @@
 {{- $pageTitle := "" -}}
 {{- if $page.IsHome -}}
     {{- /* Homepage gets the descriptive title from the site config */ -}}
-    {{- $pageTitle = printf "%s | %s" $site.Params.description $site.Title -}}
+    {{- $pageTitle = printf "%s | %s" $site.Title $site.Params.description -}}
 {{- else -}}
     {{- /* Other pages get "Page Title | Site Title" */ -}}
     {{- $pageTitle = printf "%s | %s" $page.Title $site.Title -}}
@@ -48,6 +48,25 @@
     {{- /* Fallback to a site-wide default image from hugo.toml */ -}}
     {{- with $site.Params.logo -}}
         {{- $pageImage = . | absURL -}}
+    {{- end -}}
+{{- end -}}
+
+{{- /* --- Page Keywords for SEO --- */}}
+{{- /* Use page's keywords param (array or string), fallback to site keywords */ -}}
+{{- $pageKeywords := "" -}}
+{{- with $page.Params.keywords -}}
+    {{- if (reflect.IsSlice .) -}}
+        {{- $pageKeywords = delimit . ", " -}}
+    {{- else -}}
+        {{- $pageKeywords = . -}}
+    {{- end -}}
+{{- else -}}
+    {{- with $site.Params.keywords -}}
+        {{- if (reflect.IsSlice .) -}}
+            {{- $pageKeywords = delimit . ", " -}}
+        {{- else -}}
+            {{- $pageKeywords = . -}}
+        {{- end -}}
     {{- end -}}
 {{- end -}}
 
