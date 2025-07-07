@@ -81,6 +81,9 @@
 <!-- Basic SEO meta tags -->
 <meta name="description" content="{{ $pageDesc }}">
 <meta name="author" content="{{ $site.Params.author.name | default "Ashenara" }}">
+{{- if $pageKeywords }}
+<meta name="keywords" content="{{ $pageKeywords }}">
+{{- end }}
 
 <!-- Canonical URL -->
 <link rel="canonical" href="{{ .Permalink }}">
