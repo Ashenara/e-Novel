@@ -88,31 +88,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (triggerElement) triggerElement.focus();
     };
 
-    const performSearch = (query) => {
-        // ... (The performSearch logic remains the same)
-        if (!resultsContainer) return;
-        resultsContainer.innerHTML = '';
-        if (query.length < 2) {
-            resultsContainer.innerHTML = `<p class="p-4 text-center text-(--color-muted-foreground)">Type at least 2 characters to search.</p>`;
-            return;
-        }
-        const lowerQuery = query.toLowerCase();
-        const results = allNovels.filter(novel => {
-            const titleMatch = novel.title && novel.title.toLowerCase().includes(lowerQuery);
-            const writerMatch = novel.writer && Array.isArray(novel.writer) && novel.writer.some(w => w.toLowerCase().includes(lowerQuery));
-            return titleMatch || writerMatch;
+const performSearch = (query) => {
+    if (!resultsContainer) return;
+    resultsContainer.innerHTML = '';
+    if (query.length < 2) {
+        resultsContainer.innerHTML = `<p class="p-4 text-center text-gray-500 dark:text-gray-400">Type at least 2 characters to search.</p>`;
+        return;
+    }
+    const lowerQuery = query.toLowerCase();
+
+    const results = allNovels.filter(novel => {
+        const titleMatch = novel.title && novel.title.toLowerCase().includes(lowerQuery);
+        
+        const writerMatch = novel.writer && novel.writer.toLowerCase().includes(lowerQuery);
+        
+        return titleMatch || writerMatch;
+    });
+
+    if (results.length > 0) {
+        results.slice(0, 10).forEach(novel => {
+            const item = document.createElement('a');
+            item.href = novel.permalink;
+            item.className = 'block p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors';
+
+            const displayWriter = novel.writer || ''; 
+
+            item.innerHTML = `<div class="font-semibold text-gray-800 dark:text-gray-200">${novel.title}</div>
+                              ${displayWriter ? `<div class="text-sm text-gray-500 dark:text-gray-400">by ${displayWriter}</div>` : ''}`;
+            
+            resultsContainer.appendChild(item);
         });
-        if (results.length > 0) {
-            results.slice(0, 10).forEach(novel => {
-                const item = document.createElement('a'); item.href = novel.permalink; item.className = 'block p-3 rounded-md hover:bg-(--color-muted) transition-colors';
-                const displayWriter = novel.writer && novel.writer.length > 0 ? novel.writer[0] : '';
-                item.innerHTML = `<div class="font-semibold text-(--color-foreground)">${novel.title}</div>${displayWriter ? `<div class="text-sm text-(--color-muted-foreground)">by ${displayWriter}</div>` : ''}`;
-                resultsContainer.appendChild(item);
-            });
-        } else {
-            resultsContainer.innerHTML = `<p class="p-4 text-center text-(--color-muted-foreground)">No results found for "${query}"</p>`;
-        }
-    };
+    } else {
+        resultsContainer.innerHTML = `<p class="p-4 text-center text-gray-500 dark:text-gray-400">No results found for "${query}"</p>`;
+    }
+};
     
     const updateClearButtonVisibility = () => {
         if (modalSearchInput.value.length > 0) {
@@ -122,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    fetch('/search.json').then(res => res.json()).then(data => { allNovels = data; });
+    fetch('/novels/index.json').then(res => res.json()).then(data => { allNovels = data; });
 
     searchInputs.forEach(input => {
         input.addEventListener('keydown', (e) => {
@@ -148,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalSearchInput.focus();
     });
 
-    // --- NEW EVENT LISTENER FOR THE MAIN CLOSE BUTTON ---
     closeBtn.addEventListener('click', closeModal);
 
     overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
