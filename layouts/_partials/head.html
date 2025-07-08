@@ -4,12 +4,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 {{/* --- Favicons (Loaded from hugo.toml) --- */}}
-{{- with .Site.Params.favicons -}}
-  {{- with .apple_touch_icon -}}<link rel="apple-touch-icon" sizes="180x180" href="{{ . | relURL }}">{{- end -}}
-  {{- with .favicon_32x32 -}}<link rel="icon" type="image/png" sizes="32x32" href="{{ . | relURL }}">{{- end -}}
-  {{- with .favicon_16x16 -}}<link rel="icon" type="image/png" sizes="16x16" href="{{ . | relURL }}">{{- end -}}
-  {{- with .manifest -}}<link rel="manifest" href="{{ . | relURL }}">{{- end -}}
-  {{- with .shortcut_icon -}}<link rel="shortcut icon" href="{{ . | relURL }}">{{- end -}}
+{{- with .Site.Params.favicon -}}
+  <link rel="icon" href="{{ . }}">
 {{- end -}}
 
 {{/* --- Google Analytics --- */}}

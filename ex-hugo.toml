@@ -6,7 +6,8 @@ title = ""
 
 [params]
 description = "Download Free Epub Novels - Explore a vast collection in Fantasy, Sci-Fi, Romance, and more."
-logo = "/images/alogo.png" # Path to your site logo
+favicon = "favicon.ico"
+logo = "/images/logo.png" # Path to your site logo
 
 # Enable emoji support globally for better content presentation
 enableEmoji = true
@@ -25,13 +26,6 @@ googleAnalytics = "" # Replace with your GA4 Measurement ID
   name = "Ashenara"
   twitter = "" # Optional, without the @
   avatar = "/images/alogo.png"
-
-  [params.favicons]
-    apple_touch_icon = "/apple-touch-icon.png"
-    favicon_32x32 = "/favicon-32x32.png"
-    favicon_16x16 = "/favicon-16x16.png"
-    manifest = "/site.webmanifest"
-    shortcut_icon = "/favicon.ico"
 
   [params.firebase]
     apiKey = ""
