@@ -1,6 +1,7 @@
 # Hugo Theme e-Novel / e-Book / e-Reading
 - Demo this theme [www.arashe.com](https://www.arashe.com)
-- Demo phase 2 [www.ashenara.com](https://www.ashenara.com)
+
+- Development site [www.ashenara.com](https://www.ashenara.com)
 
 ## Features
 - Showcase for novel and book,
@@ -85,13 +86,8 @@ Hugo Guide:
 
     # Search settings
     [outputs]
-        home = ["HTML", "RSS", "search"]
-
-    [outputFormats]
-        [outputFormats.search]
-        mediaType = "application/json"
-        baseName = "search"
-        isPlainText = true
+        home = ["HTML"]
+        section = ["HTML", "JSON"]
 
 ## Credits
 @hugo-narrow - https://github.com/tom2almighty/hugo-narrow
