@@ -1,0 +1,48 @@
+{{ define "main" }}
+<div class="pt-8 pb-12 px-4">
+    <!-- === HERO SECTION === -->
+    <div class="text-center mb-16">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-(--color-foreground) mb-4 tracking-tight">
+            {{ .Title }}
+        </h1>
+        <p class="text-lg md:text-xl text-(--color-muted-foreground) max-w-3xl mx-auto">
+            {{ .Params.hero_subtitle }}
+        </p>
+    </div>
+
+    <!-- === OUR STORY / AUTHOR BIO === -->
+    <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12 mb-20 max-w-5xl mx-auto">
+        <div class="w-full md:w-1/3 flex-shrink-0">
+            <img src="{{ .Params.author_image }}" alt="{{ .Params.author_image_alt }}" class="rounded-lg shadow-xl w-full h-auto object-cover">
+        </div>
+        <div class="w-full md:w-2/3">
+            <h2 class="text-3xl font-bold text-(--color-foreground) mb-4">{{ .Params.story_title }}</h2>
+            <div class="prose prose-lg dark:prose-invert max-w-none text-(--color-muted-foreground) space-y-4">
+                {{ .Content }}  <!-- This renders the markdown content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- === WHAT WE OFFER (FEATURES) === -->
+    <div class="text-center mb-20 max-w-5xl mx-auto">
+        <h2 class="text-3xl font-bold text-(--color-foreground) mb-8">{{ .Params.features_title }}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {{ range .Params.features }}
+            <div class="bg-(--color-card) p-6 rounded-lg shadow-md border border-(--color-border)">
+                <h3 class="text-xl font-semibold text-(--color-foreground) mb-2">{{ .title }}</h3>
+                <p class="text-(--color-muted-foreground)">{{ .description }}</p>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+    
+    <!-- === CALL TO ACTION === -->
+    <div class="text-center bg-(--color-muted) py-12 px-6 rounded-lg max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold text-(--color-foreground) mb-4">{{ .Params.cta_title }}</h2>
+        <p class="text-lg text-(--color-muted-foreground) mb-8">{{ .Params.cta_subtitle }}</p>
+        <a href="{{ .Params.cta_button_link }}" class="inline-block px-8 py-3 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-700 transition-colors duration-200 shadow-md text-lg">
+            {{ .Params.cta_button_text }}
+        </a>
+    </div>
+</div>
+{{ end }}

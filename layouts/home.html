@@ -1,14 +1,6 @@
 {{ define "main" }}
 <article class="container mx-auto px-4 md:px-8 py-4 space-y-16">
 
-    <!-- Hero Section -->
-    {{/*<section class="text-white h-100 py-16 md:py-24 rounded-lg shadow-lg text-center flex flex-col items-center justify-center relative overflow-hidden">
-        <div class="absolute inset-0 bg-black/10"></div>
-        {{ with .Site.Params.heroImage }}
-        <img loading="lazy" src="{{ . | relURL }}" alt="{{ $.Site.Params.heroImageAlt | default "Hero Image" }}" class="absolute inset-0 w-full h-full object-cover z-[-1]">
-        {{ end }}
-    </section>*/}}
-
     <!-- Main Content Area -->
     <div class="flex flex-col md:flex-row md:space-x-8">
         <!-- Left Column (65%) -->
@@ -16,19 +8,6 @@
             <section class="py-0">
                 <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">New Releases</h2>
                 {{ partial "home/new-releases.html" . }}
-            </section>
-            
-            <!-- REVAMPED: Button Section is now a featured card -->
-            <section class="bg-(--color-card) p-6 rounded-lg shadow-lg">
-                <h3 class="text-xl font-bold text-(--color-foreground) mb-4 text-center">Browse by Status</h3>
-                <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
-                    <a href="/status/completed" class="w-full sm:w-auto text-center px-8 py-3 rounded-lg font-bold text-lg text-white bg-(--color-primary) hover:bg-(--color-primary-hover) shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1">
-                        Completed Novels
-                    </a>
-                    <a href="/status/ongoing/" class="w-full sm:w-auto text-center px-8 py-3 rounded-lg font-bold text-lg text-(--color-primary) border-2 border-(--color-primary) bg-transparent hover:bg-(--color-primary) hover:text-white shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1">
-                        Ongoing Novels
-                    </a>
-                </div>
             </section>
 
             <section class="py-0">

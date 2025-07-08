@@ -12,10 +12,6 @@ logo = "/images/logo.png" # Path to your site logo
 # Enable emoji support globally for better content presentation
 enableEmoji = true
 
-# Hero section parameters
-heroImage = "/images/renegade.webp" # Path to your hero image (e.g., in static/images)
-heroImageAlt = "Renegade Immortal"  # Alt text for the hero image
-
 # Comments configuration
 enableComments = true
 
@@ -25,7 +21,7 @@ googleAnalytics = "" # Replace with your GA4 Measurement ID
   [params.author]
   name = "Ashenara"
   twitter = "" # Optional, without the @
-  avatar = "/images/alogo.png"
+  avatar = "/images/avatar.png"
 
   [params.firebase]
     apiKey = ""
@@ -69,20 +65,15 @@ icon = "/icons/paypal.svg"
   weight = 20
 
 # Footer Menu
-#[[menus.footer]]
-#  name = "About"
-#  url = "/about/"
-#  weight = 10
+[[menus.footer]]
+  name = "About"
+  url = "/about/"
+  weight = 10
 
-#[[menus.footer]]
-#  name = "Contact"
-#  url = "/contact/"
-#  weight = 20
-  
-#[[menus.footer]]
-#  name = "Privacy Policy"
-#  url = "/privacy/"
-#  weight = 30
+[[menus.footer]]
+  name = "Contact"
+  url = "/contact/"
+  weight = 20
   
 # Taxonomies settings
 [taxonomies]
@@ -113,13 +104,8 @@ icon = "/icons/paypal.svg"
     
 # Search settings
 [outputs]
-  home = ["HTML", "RSS", "search"]
-
-[outputFormats]
-  [outputFormats.search]
-    mediaType = "application/json"
-    baseName = "search"
-    isPlainText = true
+  home = ["HTML"]
+  section = ["HTML", "JSON"]
 
 # Taiwind CSS settings - must have in hugo.toml root
 [build]

@@ -1,0 +1,37 @@
+{{- $list := slice -}}
+
+{{- $novelPages := where .Site.Pages "Section" "novels" -}}
+{{- $novelsOnly := where $novelPages "IsNode" true -}}
+{{- $novelsOnly = where $novelsOnly "Params.excludeFromLists" "!=" true -}}
+
+{{- range $novelsOnly -}}
+    {{- $data := dict
+        "title" .Title
+        "permalink" .Permalink
+        "summary" ( .Params.summary | default .Summary )
+        "date" (.Date.Format "2006-01-02")
+        "chapters" (len (where .RegularPages "Type" "ne" "page"))
+        "writer" ""
+        "status" ""
+        "origin" ""
+        "image" ""
+        "genres" slice
+    -}}
+
+    {{- with .Params.writer }}{{ $data = merge $data (dict "writer" (delimit . ", ")) }}{{ end -}}
+    {{- with .Params.status }}{{ $data = merge $data (dict "status" (index . 0)) }}{{ end -}}
+    {{- with .Params.origin }}{{ $data = merge $data (dict "origin" (index . 0)) }}{{ end -}}
+    {{- with .Params.genres }}{{ $data = merge $data (dict "genres" .) }}{{ end -}}
+
+    {{- with .Params.image -}}
+        {{- $data = merge $data (dict "image" (. | relURL)) -}}
+    {{- else -}}
+        {{- with .Resources.GetMatch "cover.*" -}}
+            {{- $data = merge $data (dict "image" .RelPermalink) -}}
+        {{- end -}}
+    {{- end -}}
+
+    {{- $list = $list | append $data -}}
+{{- end -}}
+
+{{- $list | jsonify -}}
