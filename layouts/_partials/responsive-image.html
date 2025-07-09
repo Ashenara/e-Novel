@@ -1,0 +1,63 @@
+{{/*
+    layouts/partials/responsive-image.html (FINAL, LCP-Optimized Version)
+
+    Generates a responsive <img> tag. It's upgraded with:
+    1. A better range of image widths to satisfy different display sizes.
+    2. Support for the 'fetchpriority' attribute for LCP optimization.
+*/}}
+
+{{ $page := .page }}
+{{ $src := .src }}
+{{ $alt := .alt | default "Novel Cover" }}
+{{ $class := .class | default "" }}
+{{ $sizes := .sizes | default "100vw" }}
+{{ $placeholder := .placeholder | default "https://placehold.co/400x600/CCCCCC/666666?text=Image+Missing" }}
+
+{{/* --- LCP OPTIMIZATION: Configurable loading parameters --- */}}
+{{ $loading := .loading | default "lazy" }}
+{{ $fetchpriority := .fetchpriority | default "" }}
+
+
+{{ $image := "" }}
+{{ if and $page $src }}{{ $image = $page.Resources.GetMatch $src }}{{ end }}
+{{ if and (not $image) $src }}{{ $image = resources.Get $src }}{{ end }}
+
+
+{{ if $image }}
+    {{/* --- Image is processable, create responsive versions --- */}}
+    
+    {{/* --- FIX: Expanded widths to support small thumbnails AND larger LCP images --- */}}
+    {{ $widths := (slice 50 200 400 600 800) }}
+    
+    {{ $smallest := $image.Resize (printf "%dx" (index $widths 0)) }}
+
+    {{ $srcset := slice }}
+    {{ range $widths }}
+        {{ $resized := $image.Resize (printf "%dx" .) }}
+        {{ $srcset = $srcset | append (printf "%s %dw" $resized.RelPermalink .Width) }}
+    {{ end }}
+    {{ $srcset = delimit $srcset ", " }}
+
+    <img 
+        loading="{{ $loading }}"
+        class="{{ $class }}"
+        src="{{ $smallest.RelPermalink }}"
+        srcset="{{ $srcset }}"
+        sizes="{{ $sizes }}"
+        width="{{ $image.Width }}"
+        height="{{ $image.Height }}"
+        alt="{{ $alt }}"
+        {{/* --- FIX: Conditionally add fetchpriority attribute --- */}}
+        {{ with $fetchpriority }} fetchpriority="{{ . }}"{{ end }}
+        onerror="this.onerror=null;this.src='{{ $placeholder }}';">
+
+{{ else }}
+    {{/* --- Fallback for external URLs or missing images --- */}}
+    <img
+        loading="{{ $loading }}"
+        class="{{ $class }}"
+        src="{{ if $src }}{{ $src | relURL }}{{ else }}{{ $placeholder }}{{ end }}"
+        alt="{{ $alt }}"
+        {{ with $fetchpriority }} fetchpriority="{{ . }}"{{ end }}
+        onerror="this.onerror=null;this.src='{{ $placeholder }}';">
+{{ end }}

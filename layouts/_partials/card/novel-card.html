@@ -1,5 +1,13 @@
+{{/*
+    layouts/partials/novel-card.html (Final Version for Horizontal Scroll)
+
+    A compact card with a fixed-position genre and footer. The genre's
+    position is now independent of the title's height.
+*/}}
+
 {{ $ctx := . }}
 
+{{/* --- Robust Variable Definitions --- */}}
 {{ $imageSrc := "" }}
 {{ with $ctx.Params.image }}
     {{ $imageSrc = . | relURL }}
@@ -16,19 +24,22 @@
 
 {{ if reflect.IsSlice $status }}{{ with first 1 $status }}{{ $status = index . 0 }}{{ end }}{{ end }}
 
-<a href="{{ $permalink }}" class="group flex flex-col w-[175px] shrink-0 bg-(--color-card) rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+<a href="{{ $permalink }}" class="group flex flex-col w-[175px] shrink-0 bg-(--color-card) rounded-lg overflow-hidden transition-all duration-300 hover:-translate-y-1">
     
     <!-- Image Section -->
     <div class="relative">
-        <div class="aspect-3/4 w-full overflow-hidden">
-            <img loading="lazy" 
-                 src="{{ $imageSrc }}"
-                 alt="Novel cover for {{ $title }}"
-                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                 onerror="this.onerror=null;this.src='https://placehold.co/400x600/CCCCCC/666666?text=Image+Missing';">
+        <div class="aspect-6/7 w-full overflow-hidden">
+            {{ partial "responsive-image.html" (dict
+                "page"  $ctx
+                "src"   $imageSrc
+                "alt"   (printf "Novel cover for %s" $title)
+                "class" "w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                "sizes" "175px"
+                "placeholder" "https://placehold.co/400x600/27272A/FFFFFF?text=Cover"
+            )}}
         </div>
         {{ with $status }}
-        <div class="absolute top-2 left-2 z-10">
+        <div class="absolute top-0 left-1 z-10">
             <span class="bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow">
                 {{ . }}
             </span>
@@ -37,16 +48,20 @@
     </div>
 
     <!-- Content Area: grow allows the mt-auto trick to work -->
-    <div class="p-3 flex flex-col grow">
+    <div class="p-2 flex flex-col grow">
         <!-- Title (at the top, can be 1 or 2 lines) -->
-        <h3 class="text-sm font-bold text-(--color-foreground) leading-tight line-clamp-2 group-hover:text-(--color-primary) transition-colors">
+        <h2 class="text-xs font-bold text-(--color-foreground) leading-tight line-clamp-2 group-hover:text-(--color-primary) transition-colors">
             {{ $title }}
-        </h3>
+        </h2>
 
+        <!-- 
+            THE KEY FIX: This block contains all bottom-aligned content.
+            `mt-auto` pushes the entire block to the bottom of the card.
+        -->
         <div class="mt-auto">
             <!-- Genre is now here, its position fixed relative to the footer -->
             {{ with first 1 $genres }}
-            <p class="text-xs text-(--color-muted-foreground) line-clamp-1 mb-2">
+            <p class="text-xs text-(--color-muted-foreground) line-clamp-1 mb-1">
                 {{ index . 0 }}
             </p>
             {{ end }}
@@ -57,7 +72,7 @@
                     <span>Ch. {{ . }}</span>
                 {{ end }}
                 {{ with $publishedDate }}
-                    <span class="font-medium">{{ .Format "Jan 2" }}</span>
+                    <span class="font-small">{{ .Format "Jan 2" }}</span>
                 {{ end }}
             </div>
         </div>

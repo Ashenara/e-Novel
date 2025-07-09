@@ -1,5 +1,14 @@
+{{/*
+    layouts/partials/card/responsive-novel-card.html (Final Version)
+    
+    A compact, robust card with a defined aspect ratio. The status badge
+    is now positioned at the top-left with a translucent background for
+    a more integrated and sleek appearance.
+*/}}
+
 {{ $ctx := . }}
 
+{{/* --- Robust Variable Definitions --- */}}
 {{ $imageSrc := "" }}
 {{ with $ctx.Params.image }}
     {{ $imageSrc = . | relURL }}
@@ -13,14 +22,17 @@
 {{ $status := $ctx.Params.status | default "" }}
 {{ if reflect.IsSlice $status }}{{ with first 1 $status }}{{ $status = index . 0 }}{{ end }}{{ end }}
 
-<a href="{{ $permalink }}" class="group block w-full rounded-lg shadow-md overflow-hidden relative transition-transform duration-300 hover:shadow-xl hover:-translate-y-1 aspect-2/3">
+<a href="{{ $permalink }}" class="group block w-full rounded-lg overflow-hidden relative transition-transform duration-300 hover:-translate-y-1 aspect-2/3">
     
-    <!-- Image -->
-    <img loading="lazy" 
-         src="{{ $imageSrc }}"
-         alt="Novel cover for {{ $title }}"
-         class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-         onerror="this.onerror=null;this.src='https://placehold.co/400x600/CCCCCC/666666?text=Image+Missing';">
+    <!-- Responsive Image using the new partial call -->
+    {{ partial "responsive-image.html" (dict 
+        "page"  $ctx
+        "src"   $imageSrc
+        "alt"   (printf "Novel cover for %s" $title)
+        "class" "absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        "sizes" "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+        "placeholder" "https://placehold.co/400x600/27272A/FFFFFF?text=Cover"
+    ) }}
 
     <!-- Gradient Overlay for Text Readability -->
     <div class="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent"></div>
@@ -28,7 +40,7 @@
     <!-- Status Badge (REVAMPED) -->
     {{ with $status }}
     <!-- Changed position from top-2 right-2 to top-2 left-2 -->
-    <div class="absolute top-2 left-2 z-10">
+    <div class="absolute top-0 left-1 z-10">
         <!-- Changed background to be semi-transparent black for a more integrated look -->
         <span class="bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow">
             {{ . }}
@@ -37,11 +49,11 @@
     {{ end }}
     
     <!-- Content positioned at the bottom -->
-    <div class="absolute bottom-0 left-0 right-0 p-3 text-white">
+    <div class="absolute bottom-0 left-0 right-0 p-2 text-white">
         <!-- Title -->
-        <h3 class="font-bold text-sm leading-tight line-clamp-2 mb-1 group-hover:underline" style="text-shadow: 1px 1px 3px rgb(0 0 0 / 0.7);">
+        <h2 class="font-bold text-xs leading-tight line-clamp-2 mb-1 group-hover:underline" style="text-shadow: 1px 1px 3px rgb(0 0 0 / 0.7);">
             {{ $title }}
-        </h3>
+        </h2>
         
         <!-- Single Genre -->
         {{ with first 1 $genres }}

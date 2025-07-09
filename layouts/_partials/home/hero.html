@@ -1,77 +1,75 @@
 <section class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-(--color-primary) mb-8 overflow-hidden flex items-center justify-center min-h-[28rem] md:min-h-[24rem] py-6 md:py-0">
-{{/* --- Hugo Logic to Fetch Novels (Unchanged) --- */}}
-        {{ $allNovelOverviews := where (where site.Pages "Section" "novels") "IsNode" true }}
-        {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
-        {{ $featuredNovels := first 5 (shuffle $allNovelOverviews) }}
-        {{ $slideCount := len $featuredNovels }}
+    {{ $allNovelOverviews := where (where site.Pages "Section" "novels") "IsNode" true }}
+    {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
+    {{ $featuredNovels := first 5 (shuffle $allNovelOverviews) }}
+    {{ $slideCount := len $featuredNovels }}
 
-        {{ if gt $slideCount 0 }}
-        <!-- Alpine.js Slider Component (Simplified) -->
-        <div 
-            x-data="{
-                slideCurrent: 1,
-                slideTotal: {{ $slideCount }}
-                // REMOVED: All autoplay-related properties and functions
-            }"
-            class="relative w-full max-w-6xl mx-auto">
+    {{ if gt $slideCount 0 }}
+    <div 
+        x-data="{ slideCurrent: 1, slideTotal: {{ $slideCount }} }"
+        class="relative w-full max-w-6xl mx-auto">
 
-            <!-- Slides Container -->
-            <div class="relative w-full overflow-hidden">
-                <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${(slideCurrent - 1) * 100}%)`">
-                    
-                    {{/* --- Loop Through Novels to Create Slides (Unchanged) --- */}}
-                    {{ range $featuredNovels }}
-                    <div class="flex-shrink-0 w-full px-4 md:px-12">
-                        <div class="flex flex-col md:flex-row items-center justify-center h-full md:space-x-12 space-y-6 md:space-y-0">
-                            
-                            <!-- Image -->
-                            <div class="flex-shrink-0 w-48 aspect-[3/4] relative">
-                                {{ with .Params.image }}
-                                <img loading="lazy" src="{{ . | relURL }}" alt="{{ $.Title }} Cover" class="absolute inset-0 object-cover w-full h-full rounded-lg shadow-lg" />
+        <!-- Slides Container -->
+        <div class="relative w-full overflow-hidden">
+            <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${(slideCurrent - 1) * 100}%)`">
+                
+                {{ range $i, $novel := $featuredNovels }}
+                <div class="flex-shrink-0 w-full px-4 md:px-12">
+                    <div class="flex flex-col md:flex-row items-center justify-center h-full md:space-x-12 space-y-6 md:space-y-0">
+                        
+                        <!-- Image -->
+                        <div class="flex-shrink-0 w-48 aspect-[3/4] relative">
+                            {{ with $novel.Params.image }}
+                                {{/* --- THE CRITICAL FIX IS HERE --- */}}
+                                {{ if eq $i 0 }}
+                                    {{/* --- FIRST SLIDE (LCP): Load eagerly with high priority --- */}}
+                                    {{ partial "responsive-image.html" (dict
+                                        "page"  $novel
+                                        "src"   .
+                                        "alt"   (printf "%s Cover" $novel.Title)
+                                        "class" "absolute inset-0 object-cover w-full h-full rounded-lg shadow-lg"
+                                        "sizes" "192px"
+                                        "placeholder" "https://placehold.co/300x400/27272A/FFFFFF?text=Missing"
+                                        "loading" "eager"
+                                        "fetchpriority" "high"
+                                    )}}
                                 {{ else }}
+                                    {{/* --- OTHER SLIDES (2-5): Load lazily (default behavior) --- */}}
+                                    {{ partial "responsive-image.html" (dict
+                                        "page"  $novel
+                                        "src"   .
+                                        "alt"   (printf "%s Cover" $novel.Title)
+                                        "class" "absolute inset-0 object-cover w-full h-full rounded-lg shadow-lg"
+                                        "sizes" "192px"
+                                        "placeholder" "https://placehold.co/300x400/27272A/FFFFFF?text=Missing"
+                                    )}}
+                                {{ end }}
+                            {{ else }}
                                 <div class="w-full h-full rounded-lg shadow-lg bg-black/20 flex items-center justify-center text-white/50">No Image</div>
-                                {{ end }}
-                            </div>
-    
-                            <!-- Text Content -->
-                            <div class="flex-1 flex flex-col justify-center h-full w-full md:w-auto max-w-lg">
-                                <h3 class="text-3xl md:text-4xl font-bold text-white text-center md:text-left mb-3 line-clamp-2">{{ .Title }}</h3>
-                                
-                                {{ with .Params.summary }}
-                                <!-- CHANGE: Replaced custom class with Tailwind's standard line-clamp utility -->
-                                <div class="text-white/90 text-base text-center md:text-left line-clamp-3">
-                                    {{ . }}
-                                </div>
-                                {{ end }}
-                                
-                                <div class="mt-6 text-center md:text-left">
-                                    <a href="{{ .Permalink }}" class="inline-block px-6 py-3 bg-white text-(--color-primary) font-semibold rounded-lg shadow-md hover:bg-gray-200 transition-colors">
-                                        Read More
-                                    </a>
-                                 </div>
+                            {{ end }}
+                        </div>
+
+                        <!-- Text Content (unchanged) -->
+                        <div class="flex-1 flex flex-col justify-center h-full w-full md:w-auto max-w-lg">
+                            <h3 class="text-3xl md:text-4xl font-bold text-white text-center md:text-left mb-3 line-clamp-2">{{ $novel.Title }}</h3>
+                            {{ with $novel.Params.summary }}
+                            <div class="text-white/90 text-base text-center md:text-left line-clamp-3">{{ . }}</div>
+                            {{ end }}
+                            <div class="mt-6 text-center md:text-left">
+                                <a href="{{ $novel.Permalink }}" class="inline-block px-6 py-3 bg-white text-cyan-700 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition-colors">Read More</a>
                             </div>
                         </div>
                     </div>
-                    {{ end }}
-
                 </div>
-            </div>
-
-            <!-- Navigation Arrows (Unchanged) -->
-            <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-4 md:px-6">
-                <button 
-                    @click="slideCurrent = slideCurrent === 1 ? slideTotal : slideCurrent - 1"
-                    class="pointer-events-auto bg-white/30 hover:bg-white/50 text-white rounded-full w-10 h-10 flex items-center justify-center backdrop-blur-sm transition z-20">
-                    ←
-                </button>
-                <button 
-                    @click="slideCurrent = slideCurrent === slideTotal ? 1 : slideCurrent + 1"
-                    class="pointer-events-auto bg-white/30 hover:bg-white/50 text-white rounded-full w-10 h-10 flex items-center justify-center backdrop-blur-sm transition z-20">
-                    →
-                </button>
+                {{ end }}
             </div>
         </div>
-        {{ end }}
 
-        {{/*<div class="absolute inset-0 bg-black/10 pointer-events-none"></div>*/}}
+        <!-- Navigation Arrows (unchanged) -->
+        <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-4 md:px-6">
+            <button @click="slideCurrent = slideCurrent === 1 ? slideTotal : slideCurrent - 1" class="pointer-events-auto bg-white/30 hover:bg-white/50 text-white rounded-full w-10 h-10 flex items-center justify-center backdrop-blur-sm transition z-20">←</button>
+            <button @click="slideCurrent = slideCurrent === slideTotal ? 1 : slideCurrent + 1" class="pointer-events-auto bg-white/30 hover:bg-white/50 text-white rounded-full w-10 h-10 flex items-center justify-center backdrop-blur-sm transition z-20">→</button>
+        </div>
+    </div>
+    {{ end }}
 </section>
