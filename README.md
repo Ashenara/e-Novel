@@ -9,23 +9,31 @@
 - Blogging,
 - Responsive,
 - Tailwindcss,
-- Login fiture,
 - Darklight mode,
 - Easy to customize,
 - Search modal,
+- Firebase integration,
+    - Authentication,
+        - Login (using email/pass and google account)
+    - Firestore Database.
+        - Add to library,
+        - History read
+        - View Counts,
+        - Rating.
 - etc.
 
-#### Need attention
-- This theme using Firebase database and authentication for login, comments also though, you just need to fill firebase data in hugo.toml.
+#### Notes
+- This theme using Firestore database and authentication for login, comments, view counts, and rating. You just need to fill firebase data in hugo.toml.
+
+- Firebase is easy to setup for beginner, just need to click - click and done. There is limitations, but for starter website it's already good deal.
+
+- View counts and rating just show up on home and novel page to optimized usage limitation from firebase. I also use load more to optimized it.
 
 - For settings, you can see ex-hugo.toml for ref,
 
 - Novel page: Download and read in same button, if for read online, keep frontmater `download: ""` like this or just remove it.
 
 -  Novel author using params writer.
-
-#### Notes
-- I'm not pro on coding, so this theme is a bit mess. Anyway i already test it on netlify a few weeks and work well.
 
 ## Installation
 
