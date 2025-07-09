@@ -1,19 +1,13 @@
 {{/*
-    layouts/partials/novel-card.html (Final Version for Horizontal Scroll)
-
-    A compact card with a fixed-position genre and footer. The genre's
-    position is now independent of the title's height.
+    layouts/partials/novel-card.html (CORRECTED VERSION)
 */}}
 
 {{ $ctx := . }}
 
 {{/* --- Robust Variable Definitions --- */}}
-{{ $imageSrc := "" }}
-{{ with $ctx.Params.image }}
-    {{ $imageSrc = . | relURL }}
-{{ else }}
-    {{ $imageSrc = "https://placehold.co/400x600/27272A/FFFFFF?text=Cover" }}
-{{ end }}
+
+{{/* --- FIX: Simply get the image FILENAME from front matter. --- */}}
+{{ $imageSrc := $ctx.Params.image | default "" }}
 
 {{ $title := $ctx.Title }}
 {{ $permalink := $ctx.Permalink }}
@@ -29,6 +23,7 @@
     <!-- Image Section -->
     <div class="relative">
         <div class="aspect-6/7 w-full overflow-hidden">
+            {{/* The partial call is now correct because $imageSrc is just the filename */}}
             {{ partial "responsive-image.html" (dict
                 "page"  $ctx
                 "src"   $imageSrc
@@ -40,40 +35,21 @@
         </div>
         {{ with $status }}
         <div class="absolute top-0 left-1 z-10">
-            <span class="bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow">
-                {{ . }}
-            </span>
+            <span class="bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow">{{ . }}</span>
         </div>
         {{ end }}
     </div>
 
-    <!-- Content Area: grow allows the mt-auto trick to work -->
+    <!-- Content Area (Unchanged) -->
     <div class="p-2 flex flex-col grow">
-        <!-- Title (at the top, can be 1 or 2 lines) -->
-        <h2 class="text-xs font-bold text-(--color-foreground) leading-tight line-clamp-2 group-hover:text-(--color-primary) transition-colors">
-            {{ $title }}
-        </h2>
-
-        <!-- 
-            THE KEY FIX: This block contains all bottom-aligned content.
-            `mt-auto` pushes the entire block to the bottom of the card.
-        -->
+        <h2 class="text-xs font-bold text-(--color-foreground) leading-tight line-clamp-2 group-hover:text-(--color-primary) transition-colors">{{ $title }}</h2>
         <div class="mt-auto">
-            <!-- Genre is now here, its position fixed relative to the footer -->
             {{ with first 1 $genres }}
-            <p class="text-xs text-(--color-muted-foreground) line-clamp-1 mb-1">
-                {{ index . 0 }}
-            </p>
+            <p class="text-xs text-(--color-muted-foreground) line-clamp-1 mb-1">{{ index . 0 }}</p>
             {{ end }}
-
-            <!-- Footer with Chapter & Date -->
             <div class="pt-2 border-t border-(--color-border) flex justify-between items-center text-xs text-(--color-muted-foreground)">
-                {{ with $chapter }}
-                    <span>Ch. {{ . }}</span>
-                {{ end }}
-                {{ with $publishedDate }}
-                    <span class="font-small">{{ .Format "Jan 2" }}</span>
-                {{ end }}
+                {{ with $chapter }}<span>Ch. {{ . }}</span>{{ end }}
+                {{ with $publishedDate }}<span class="font-small">{{ .Format "Jan 2" }}</span>{{ end }}
             </div>
         </div>
     </div>

@@ -1,20 +1,11 @@
 {{/*
-    layouts/partials/card/responsive-novel-card.html (Final Version)
-    
-    A compact, robust card with a defined aspect ratio. The status badge
-    is now positioned at the top-left with a translucent background for
-    a more integrated and sleek appearance.
+    layouts/partials/card/responsive-novel-card.html (CORRECTED VERSION)
 */}}
 
 {{ $ctx := . }}
 
-{{/* --- Robust Variable Definitions --- */}}
-{{ $imageSrc := "" }}
-{{ with $ctx.Params.image }}
-    {{ $imageSrc = . | relURL }}
-{{ else }}
-    {{ $imageSrc = "https://placehold.co/400x600/27272A/FFFFFF?text=Cover" }}
-{{ end }}
+{{/* --- FIX: Simply get the image FILENAME from front matter. --- */}}
+{{ $imageSrc := $ctx.Params.image | default "" }}
 
 {{ $title := $ctx.Title }}
 {{ $permalink := $ctx.Permalink }}
@@ -24,7 +15,7 @@
 
 <a href="{{ $permalink }}" class="group block w-full rounded-lg overflow-hidden relative transition-transform duration-300 hover:-translate-y-1 aspect-2/3">
     
-    <!-- Responsive Image using the new partial call -->
+    {{/* The partial call is now correct because $imageSrc is just the filename */}}
     {{ partial "responsive-image.html" (dict 
         "page"  $ctx
         "src"   $imageSrc
@@ -34,32 +25,17 @@
         "placeholder" "https://placehold.co/400x600/27272A/FFFFFF?text=Cover"
     ) }}
 
-    <!-- Gradient Overlay for Text Readability -->
+    <!-- Unchanged elements below -->
     <div class="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent"></div>
-
-    <!-- Status Badge (REVAMPED) -->
     {{ with $status }}
-    <!-- Changed position from top-2 right-2 to top-2 left-2 -->
     <div class="absolute top-0 left-1 z-10">
-        <!-- Changed background to be semi-transparent black for a more integrated look -->
-        <span class="bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow">
-            {{ . }}
-        </span>
+        <span class="bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow">{{ . }}</span>
     </div>
     {{ end }}
-    
-    <!-- Content positioned at the bottom -->
     <div class="absolute bottom-0 left-0 right-0 p-2 text-white">
-        <!-- Title -->
-        <h2 class="font-bold text-xs leading-tight line-clamp-2 mb-1 group-hover:underline" style="text-shadow: 1px 1px 3px rgb(0 0 0 / 0.7);">
-            {{ $title }}
-        </h2>
-        
-        <!-- Single Genre -->
+        <h2 class="font-bold text-xs leading-tight line-clamp-2 mb-1 group-hover:underline" style="text-shadow: 1px 1px 3px rgb(0 0 0 / 0.7);">{{ $title }}</h2>
         {{ with first 1 $genres }}
-        <span class="text-xs text-white/80 font-medium line-clamp-1">
-            {{ index . 0 }}
-        </span>
+        <span class="text-xs text-white/80 font-medium line-clamp-1">{{ index . 0 }}</span>
         {{ end }}
     </div>
 </a>
