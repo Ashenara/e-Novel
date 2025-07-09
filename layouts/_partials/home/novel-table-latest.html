@@ -20,6 +20,9 @@
                 {{ $allChapters := where .Site.RegularPages "Params.chapter_number" "ne" nil }}
                 {{ $latestChapters := sort $allChapters "PublishDate" "desc" }}
 
+                {{/* --- PERFORMANCE FIX: Only consider the 200 most recent chapters --- */}}
+                {{ $latestChapters = first 200 $latestChapters }}
+
                 {{ $novelsInTable := slice }}
                 {{/* CHANGE: Increase limit to fetch more items for lazy loading */}}
                 {{ $limit := 25 }}
@@ -33,7 +36,7 @@
                             {{ $novelsFound = add $novelsFound 1 }}
                             
                             {{/* CHANGE: Add a class to each row for the JS to target */}}
-                            <tr class="border-b border-(--color-border) lazy-load-item">
+                            <tr class="border-b border-(--color-border) lazy-load-item{{ if ge $novelsFound 5 }} hidden{{ end }}">
                                 <!-- Novel Title & Cover -->
                                 <td class="px-0 py-3">
                                     <div class="flex items-center gap-3">
@@ -124,9 +127,8 @@
                 return;
             }
 
-            const initialShow = 5; // Number of items to show initially
-            const step = 5;        // Number of items to reveal per click
-            let currentlyShown = 0;
+            
+            let currentlyShown = 5;
 
             // Function to show a batch of items
             const showItems = () => {
@@ -146,13 +148,6 @@
             };
             
             // --- INITIAL SETUP ---
-            // 1. Hide all items initially
-            allRows.forEach(row => row.classList.add('hidden'));
-            
-            // 2. Show the first batch of items
-            showItems();
-
-            // 3. Add the click event listener to the button
             loadMoreBtn.addEventListener('click', showItems);
         });
     })();
