@@ -1,13 +1,17 @@
-<div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+<section class="py-0">
+    <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">Random Picks</h2>
+<div class="grid grid-cols-3 sm:grid-cols-3 gap-4">
     {{ $allNovelOverviews := where (where .Site.Pages "Section" "novels") "IsNode" true }}
     {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
     {{ $randomNovels := first 12 (shuffle $allNovelOverviews) }}
     
     {{ if $randomNovels }}
         {{ range $randomNovels }}
+            {{/* This is the correct, simplified way to call the partial */}}
             {{ partial "card/responsive-novel-card.html" . }}
         {{ end }}
     {{ else }}
         <p class="text-(--color-muted-foreground) col-span-full">No random novels found.</p>
     {{ end }}
 </div>
+</section>

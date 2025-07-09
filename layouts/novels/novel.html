@@ -5,65 +5,64 @@
     <div class="mt-4 md:mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12">
 
         <!-- Left Column (Sticky Sidebar on Large Screens) -->
-        <aside class="lg:col-span-4 xl:col-span-3">
+        <aside class="lg:col-span-4 xl:col-span-3 md:py-10">
             <div class="lg:sticky lg:top-8 space-y-6">
 
                 <!-- Novel Cover -->
                 <div class="shrink-0">
-                    <img src="{{ with .Params.image }}{{ . | relURL }}{{ else }}
-                    {{ "https://placehold.co/400x600/27272A/FFFFFF?text=Novel+Cover" }}{{ end }}"
-                        alt="Novel Cover for {{ .Title }}" class="w-full h-auto rounded-xl shadow-lg object-cover"
-                        onerror="this.onerror=null;this.src='https://placehold.co/400x600/CCCCCC/666666?text=Image+Missing';">
+                    {{/* THE KEY FIX: The placeholder URL string is now on a single line */}}
+                    <img src="{{ with .Params.image }}{{ . | relURL }}{{ else }}{{ "https://placehold.co/400x600/27272A/FFFFFF?text=Novel+Cover" }}{{ end }}"
+                         alt="{{ .Title }} Cover" class="w-full h-auto rounded-xl shadow-lg object-cover"
+                         onerror="this.onerror=null;this.src='https://placehold.co/400x600/CCCCCC/666666?text=Image+Missing';">
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="flex flex-col space-y-3">
                     {{ $firstChapter := first 1 (.Pages.ByParam "chapter_number") }}
                     {{ with $firstChapter }}
-                    {{ range . }}
-                    <a href="{{ .Permalink }}"
-                        class="w-full text-center bg-(--color-primary) text-white px-6 py-3 rounded-lg font-bold text-lg hover:bg-(--color-primary-hover) transition-colors shadow-md transform hover:-translate-y-0.5">Start
-                        Reading</a>
-                    {{ end }}
+                        {{ range . }}
+                            <a href="{{ .Permalink }}" class="w-full text-center bg-(--color-primary) text-white px-6 py-3 rounded-lg font-bold text-lg hover:bg-(--color-primary-hover) transition-colors shadow-md transform hover:-translate-y-0.5">Start Reading</a>
+                        {{ end }}
                     {{ else }}
-                    {{ with .Params.download }}
-                    <a href="{{ . | relURL }}" target="_blank"
-                        class="w-full text-center bg-(--color-primary) text-white px-6 py-3 rounded-lg font-bold text-lg hover:bg-(--color-primary-hover) transition-colors shadow-md transform hover:-translate-y-0.5">Download</a>
-                    {{ end }}
+                        {{ with .Params.download }}
+                            <a href="{{ . | relURL }}" target="_blank" class="w-full text-center bg-(--color-primary) text-white px-6 py-3 rounded-lg font-bold text-lg hover:bg-(--color-primary-hover) transition-colors shadow-md transform hover:-translate-y-0.5">Download</a>
+                        {{ end }}
                     {{ end }}
                     <!-- MODIFIED Add to Library Button -->
-                    <button id="add-to-library-btn" data-novel-id="{{ .File.UniqueID | default (.Title | urlize) }}"
-                        data-novel-title="{{ .Title }}" data-novel-permalink="{{ .Permalink | absURL }}"
-                        data-novel-image="{{ with .Params.image }}{{ . | absURL }}{{ else }}
-                        {{ "https://placehold.co/400x600/27272A/FFFFFF?text=Novel+Cover" }}{{ end }}"
-                        data-novel-status="{{ with .Params.status }}{{ if reflect.IsSlice . }}{{ index . 0 }}{{ else }}{{ . }}{{ end }}{{ end }}"
-                        data-novel-genres="{{ with .Params.genres }}{{ delimit . " ," }}{{ end }}"
-                        class="w-full text-center bg-(--color-muted) text-(--color-muted-foreground) px-6 py-3 rounded-lg font-bold text-lg hover:bg-opacity-80 transition-colors shadow-md transform hover:-translate-y-0.5"
-                        disabled>
-                        Add to Library
-                    </button>
-                    <p id="library-status" class="text-xs text-center text-(--color-muted-foreground) h-4"></p>
-                </div>
+    <button
+    id="add-to-library-btn"
+    data-novel-id="{{ .File.UniqueID | default (.Title | urlize) }}"
+    data-novel-title="{{ .Title }}"
+    data-novel-permalink="{{ .Permalink | absURL }}"
+
+    {{/* This now uses the same logic as your working img tag, but with absURL */}}
+    data-novel-image="{{ with .Params.image }}{{ . | absURL }}{{ else }}{{ "https://placehold.co/400x600/27272A/FFFFFF?text=Novel+Cover" }}{{ end }}"
+
+    data-novel-status="{{ with .Params.status }}{{ if reflect.IsSlice . }}{{ index . 0 }}{{ else }}{{ . }}{{ end }}{{ end }}"
+    data-novel-genres="{{ with .Params.genres }}{{ delimit . "," }}{{ end }}"
+    class="w-full text-center bg-(--color-muted) text-(--color-muted-foreground) px-6 py-3 rounded-lg font-bold text-lg hover:bg-opacity-80 transition-colors shadow-md transform hover:-translate-y-0.5"
+    disabled
+>
+    Add to Library
+</button>
+    <p id="library-status" class="text-xs text-center text-(--color-muted-foreground) h-4"></p>
+</div>
 
                 <!-- Metadata Block -->
-                <div class="bg-(--color-card) p-4 rounded-lg shadow-md">
-                    <h3 class="text-xl font-bold text-(--color-foreground) mb-4 border-b border-(--color-border) pb-2">
-                        Details</h3>
+                <div class="bg-(--color-card) p-4 rounded-lg">
+                    <h3 class="text-xl font-bold text-(--color-foreground) mb-4 border-b border-(--color-border) pb-2">Details</h3>
                     <ul class="space-y-3 text-(--color-muted-foreground)">
                         {{ with .Params.writer }}
                         <li class="flex justify-between items-center">
                             <span>Author:</span>
                             {{ range . }}
-                            <a href="{{ printf " /writer/%s/" (. | urlize) | relURL }}"
-                                class="ml-2 px-2 py-1 bg-(--color-alt-tag-bg) text-(--color-alt-tag-text) text-xs font-semibold rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">
+                            <a href="{{ printf "/writer/%s/" (. | urlize) | relURL }}" class="ml-2 px-2 py-1 bg-(--color-alt-tag-bg) text-(--color-alt-tag-text) text-xs font-semibold rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">
                                 {{ . }}
                             </a>
                             {{ end }}
                         </li>
                         {{ end }}
-                        {{ with .Params.translator }}<li class="flex justify-between items-center">
-                            <span>Translator:</span> <strong class="text-(--color-foreground) text-right">{{ .
-                                }}</strong></li>{{ end }}
+                        {{ with .Params.translator }}<li class="flex justify-between items-center"><span>Translator:</span> <strong class="text-(--color-foreground) text-right">{{ . }}</strong></li>{{ end }}
                         {{ with .Params.origin }}
                         <li class="flex justify-between items-center">
                             <span>Origin:</span>
@@ -72,9 +71,7 @@
                             </strong>
                         </li>
                         {{ end }}
-                        {{ with .Params.chapter }}<li class="flex justify-between items-center">
-                            <span>Chapters:</span><strong class="text-(--color-foreground) text-right">{{ . }}</strong>
-                        </li>{{ end }}
+                        {{ with .Params.chapter }}<li class="flex justify-between items-center"><span>Chapters:</span><strong class="text-(--color-foreground) text-right">{{ . }}</strong></li>{{ end }}
                         {{ with .Params.status }}
                         <li class="flex justify-between items-center">
                             <span>Status:</span>
@@ -83,21 +80,52 @@
                             </strong>
                         </li>
                         {{ end }}
-                        {{ with .PublishDate }}<li class="flex justify-between items-center"><span>Date
-                                Added:</span><strong class="text-(--color-foreground) text-sm text-right">{{ .Format
-                                "Jan 2, 2006" }}</strong></li>{{ end }}
+                        {{ with .PublishDate }}<li class="flex justify-between items-center"><span>Date Added:</span><strong class="text-(--color-foreground) text-sm text-right">{{ .Format "Jan 2, 2006" }}</strong></li>{{ end }}
+                        
+                        <!-- START: VIEWS WIDGET -->
+                        {{ $novelId := .File.UniqueID | default (.Title | urlize) }}
+                        <li class="flex justify-between items-center" data-novel-id-for-views="{{ $novelId }}">
+                            <span>Views:</span>
+                            <strong id="view-count-display" class="text-(--color-foreground) text-right">...</strong>
+                        </li>
+                        <!-- END: VIEWS WIDGET -->
+                              
+                        <!-- START: RATING WIDGET -->
+                        <li class="flex justify-between items-center pt-2">
+                            <span>Rating:</span>
+                            {{/* 
+                              THE FIX: We generate a unique, Firestore-safe ID using Hugo's built-in functions.
+                              .File.UniqueID is the best as it's stable even if the title changes.
+                            */}}
+                            {{ $novelId := .File.UniqueID | default (.Title | urlize) }}
+                            <div class="rating-widget text-right" data-novel-slug="{{ $novelId }}">
+                                <div class="flex items-center justify-end gap-1 text-(--color-muted-foreground) text-xs mb-1">
+                                    <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <span class="rating-average font-bold text-sm text-(--color-foreground)">-</span>
+                                    <span class="rating-count">(- votes)</span>
+                                </div>
+                                <div class="stars" title="Rate this novel">
+                                    {{/* We use the same $novelId here to ensure unique names/ids for the inputs */}}
+                                    {{ range seq 5 -1 1 }}
+                                    <input type="radio" id="star{{ . }}-{{ $novelId }}" name="rating-{{ $novelId }}" value="{{ . }}" /><label for="star{{ . }}-{{ $novelId }}">★</label>
+                                    {{ end }}
+                                </div>
+                            </div>
+                        </li>
+                        <!-- END: RATING WIDGET -->
+
+    
                     </ul>
                 </div>
 
                 <!-- Genres & Tags -->
-                <div class="bg-(--color-card) p-4 rounded-lg shadow-md">
+                <div class="bg-(--color-card) p-4 rounded-lg">
                     {{ with .Params.genres }}
                     <h3 class="text-lg font-bold text-(--color-foreground) mb-3">Genres</h3>
                     <div class="flex flex-wrap gap-2">
                         {{ range . }}
-                        <a href="{{ printf " /genres/%s/" (. | urlize) | relURL }}"
-                            class="bg-(--color-tag-bg) text-(--color-tag-text) text-sm font-medium px-3 py-1 rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">{{
-                            . }}</a>
+                            {{/* FIXED: Removed leading space in URL path */}}
+                            <a href="{{ printf "/genres/%s/" (. | urlize) | relURL }}" class="bg-(--color-tag-bg) text-(--color-tag-text) text-sm font-medium px-3 py-1 rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">{{ . }}</a>
                         {{ end }}
                     </div>
                     {{ end }}
@@ -106,13 +134,20 @@
                     <h3 class="text-lg font-bold text-(--color-foreground) mb-3 mt-4">Tags</h3>
                     <div class="flex flex-wrap gap-2">
                         {{ range . }}
-                        <a href="{{ printf " /tags/%s/" (. | urlize) | relURL }}"
-                            class="bg-(--color-alt-tag-bg) text-(--color-alt-tag-text) text-sm font-medium px-3 py-1 rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">{{
-                            . }}</a>
+                            {{/* FIXED: Removed leading space in URL path */}}
+                            <a href="{{ printf "/tags/%s/" (. | urlize) | relURL }}" class="bg-(--color-alt-tag-bg) text-(--color-alt-tag-text) text-sm font-medium px-3 py-1 rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">{{ . }}</a>
                         {{ end }}
                     </div>
                     {{ end }}
                 </div>
+
+                <!-- Ads Placeholder (Sidebar) -->
+                {{/*<div class="bg-(--color-card) p-4 rounded-lg shadow-md">
+                    <h3 class="text-sm font-bold text-(--color-muted-foreground) mb-2 text-center">Advertisement</h3>
+                    <div class="w-full h-64 bg-(--color-muted) flex items-center justify-center rounded-md">
+                        <p class="text-sm text-(--color-muted-foreground)">Ad Unit (300x250)</p>
+                    </div>
+                </div>*/}}
 
             </div>
         </aside>
@@ -121,7 +156,7 @@
         <main class="lg:col-span-8 xl:col-span-9 space-y-12">
 
             <!-- Title and Summary -->
-            <section class="bg-(--color-card) rounded-lg md:shadow-xl px-0 py-6 md:p-8">
+            <section class="bg-(--color-card) rounded-lg px-0 py-6 md:p-8">
                 <h1 class="text-3xl md:text-4xl font-bold text-(--color-foreground) mb-2 leading-tight">
                     {{ .Title }}
                 </h1>
@@ -134,29 +169,32 @@
                 <div class="flex items-center text-lg text-(--color-muted-foreground) mb-6">
                     <span>by</span>
                     {{ range . }}
-                    <a href="{{ printf " /writer/%s/" (. | urlize) | relURL }}"
-                        class="ml-2 px-3 py-1 bg-(--color-alt-tag-bg) text-(--color-alt-tag-text) text-sm font-semibold rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">{{
-                        . }}</a>
+                    {{/* FIXED: Removed leading space in URL path */}}
+                    <a href="{{ printf "/writer/%s/" (. | urlize) | relURL }}" class="ml-2 px-3 py-1 bg-(--color-alt-tag-bg) text-(--color-alt-tag-text) text-sm font-semibold rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">{{ . }}</a>
                     {{ end }}
                 </div>
                 {{ end }}
 
-                <h2 class="text-2xl font-bold text-(--color-foreground) mt-8 mb-4 border-b border-(--color-border) pb-3">
-                    Synopsis</h2>
+                <h2 class="text-2xl font-bold text-(--color-foreground) mt-8 mb-4 border-b border-(--color-border) pb-3">Synopsis</h2>
                 <div class="prose dark:prose-invert max-w-none text-(--color-muted-foreground)">
                     {{ .Content }}
                 </div>
             </section>
-
+            
             <!-- ... The rest of the file is correct ... -->
-            <section id="chapter-list" class="bg-(--color-card) rounded-lg shadow-xl p-6 md:p-8">
+            {{/*<section class="bg-(--color-card) rounded-lg shadow-xl p-4 text-center">
+                <h3 class="text-sm font-bold text-(--color-muted-foreground) mb-2">Advertisement</h3>
+                <div class="w-full h-[90px] bg-(--color-muted) flex items-center justify-center rounded-md">
+                    <p class="text-sm text-(--color-muted-foreground)">Ad Unit (e.g., 728x90)</p>
+                </div>
+            </section>*/}}
+
+            <section id="chapter-list" class="bg-(--color-card) rounded-lg p-6 md:p-8">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6">
                     <h2 class="text-2xl font-bold text-(--color-foreground) mb-4 sm:mb-0">Chapter List</h2>
                     <div class="flex space-x-2">
-                        <button id="sort-newest"
-                            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Newest</button>
-                        <button id="sort-oldest"
-                            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Oldest</button>
+                        <button id="sort-newest" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Newest</button>
+                        <button id="sort-oldest" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">Oldest</button>
                     </div>
                 </div>
                 {{ $chapters := .Pages.ByParam "chapter_number" }}
@@ -172,33 +210,23 @@
                     {{ with $chunkChapters }}
                     {{ $firstChapterInChunk := index . 0 }}
                     {{ $lastChapterInChunk := index (last 1 .) 0 }}
-                    <div class="chapter-chunk border border-(--color-border) rounded-lg overflow-hidden"
-                        data-chunk-index="{{ $chunkIndex }}">
-                        <button
-                            class="chunk-header w-full flex justify-between items-center p-4 bg-(--color-muted) hover:bg-opacity-80 transition-colors">
+                    <div class="chapter-chunk border border-(--color-border) rounded-lg overflow-hidden" data-chunk-index="{{ $chunkIndex }}">
+                        <button class="chunk-header w-full flex justify-between items-center p-4 bg-(--color-muted) hover:bg-opacity-80 transition-colors">
                             <span class="font-bold text-lg text-(--color-foreground)">
-                                Chapters {{ $firstChapterInChunk.Params.chapter_number }} - {{
-                                $lastChapterInChunk.Params.chapter_number }}
+                                Chapters {{ $firstChapterInChunk.Params.chapter_number }} - {{ $lastChapterInChunk.Params.chapter_number }}
                             </span>
-                            <svg class="w-5 h-5 text-(--color-muted-foreground) transition-transform transform"
-                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
+                            <svg class="w-5 h-5 text-(--color-muted-foreground) transition-transform transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
                         <div class="chunk-content hidden p-2">
                             <ul class="space-y-1">
                                 {{ range . }}
-                                <li data-chapter-number="{{ .Params.chapter_number }}"
-                                    class="border-b border-(--color-border) last:border-b-0">
-                                    <a href="{{ .RelPermalink }}"
-                                        class="block p-3 rounded-lg transition-colors text-(--color-muted-foreground) hover:bg-(--color-muted) hover:text-(--color-foreground)">
+                                <li data-chapter-number="{{ .Params.chapter_number }}" class="border-b border-(--color-border) last:border-b-0">
+                                    <a href="{{ .RelPermalink }}" class="block p-3 rounded-lg transition-colors text-(--color-muted-foreground) hover:bg-(--color-muted) hover:text-(--color-foreground)">
                                         <div class="flex justify-between items-center">
-                                            <span class="font-medium">Chapter {{ .Params.chapter_number }}: {{ .Title
-                                                }}</span>
-                                            <span class="text-xs text-right ml-4">{{ .PublishDate.Format "Jan 2, 2006"
-                                                }}</span>
+                                            <span class="font-medium">Chapter {{ .Params.chapter_number }}: {{ .Title }}</span>
+                                            <span class="text-xs text-right ml-4">{{ .PublishDate.Format "Jan 2, 2006" }}</span>
                                         </div>
                                     </a>
                                 </li>
@@ -246,15 +274,60 @@
         </div>
     </section>
     {{ if .Site.Params.enableComments }}
-
+    
     <section>
         {{ $pageId := .File.UniqueID }}
         {{ $pageData := dict "pageId" $pageId "pageTitle" .Title "pageUrl" .Permalink }}
         {{ partial "firebase/comments-firebase.html" $pageData }}
-    </section>
-
+   </section>
+   
     {{ end }}
 </div>
+
+<style>
+    .rating-widget .stars {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+    .rating-widget .stars input[type="radio"] {
+        display: none;
+    }
+    .rating-widget .stars label {
+        font-size: 1.5rem; /* 24px */
+        color: #d1d5db; /* gray-400 */
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+        /* --- THE FIX IS HERE --- */
+
+    /* Rule 1: This handles the FINAL state AFTER a user clicks. */
+    /* It fills up all the stars up to the one that is checked. */
+    .rating-widget .stars input[type="radio"]:checked ~ label {
+        color: #f59e0b; /* yellow-500 */
+    }
+
+    /* Rule 2: This handles the HOVER state for a SINGLE star. */
+    /* It ONLY colors the star the mouse is directly over, making it much clearer. */
+    .rating-widget .stars label:hover {
+        color: #f59e0b; /* yellow-500 */
+    }
+
+    /* Rule 3: This makes the hover effect feel more 'sticky' and intuitive. */
+    /* When you hover the 3rd star, the 1st and 2nd will also light up. */
+    /* This rule is OPTIONAL, but recommended for a good UX. Remove it if you want ONLY the single star to light up. */
+    .rating-widget .stars label:hover ~ label {
+        color: #f59e0b; /* yellow-500 */
+    }
+
+
+    /* --- END OF FIX --- */
+    .rating-widget.is-disabled .stars label {
+        cursor: not-allowed;
+        color: #6b7280 !important; /* gray-500, use important to override hover */
+    }
+</style>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const chunkHeaders = document.querySelectorAll('.chunk-header');
@@ -318,79 +391,253 @@
             console.warn("Chapter sorting elements not found. Sorting will not be initialized.");
         }
     });
+    
+document.addEventListener('DOMContentLoaded', () => {
+    const checkFirebase = setInterval(() => {
+        if (typeof auth !== 'undefined' && typeof db !== 'undefined') {
+            clearInterval(checkFirebase);
+            initNovelPage();
+        }
+    }, 100);
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const checkFirebase = setInterval(() => {
-            if (typeof auth !== 'undefined' && typeof db !== 'undefined') {
-                clearInterval(checkFirebase);
-                initNovelPage();
+    function initNovelPage() {
+        const libraryBtn = document.getElementById('add-to-library-btn');
+        const libraryStatus = document.getElementById('library-status');
+        const startReadingBtn = document.getElementById('start-reading-btn');
+
+        const novelId = libraryBtn.dataset.novelId;
+    
+        // NEW: Initialize the rating widget
+        initRatingWidget();
+
+         // NEW: Initialize the view counter
+        initViewCounter();
+        
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is logged in, enable the button
+                libraryBtn.disabled = false;
+                const libraryDocRef = db.collection('users').doc(user.uid).collection('library').doc(novelId);
+
+                // Check if this novel is already in the library and update UI
+                libraryDocRef.onSnapshot(doc => {
+                    if (doc.exists) {
+                        libraryBtn.textContent = 'In Library ✔️';
+                        libraryBtn.classList.add('bg-green-600', 'text-white');
+                        libraryBtn.classList.remove('bg-(--color-muted)', 'text-(--color-muted-foreground)');
+                        libraryBtn.onclick = () => removeFromLibrary(user.uid, novelId);
+                    } else {
+                        libraryBtn.textContent = 'Add to Library';
+                        libraryBtn.classList.remove('bg-green-600', 'text-white');
+                        libraryBtn.classList.add('bg-(--color-muted)', 'text-(--color-muted-foreground)');
+                        libraryBtn.onclick = () => addToLibrary(user.uid);
+                    }
+                });
+
+                
+
+            } else {
+                // User is not logged in
+                libraryBtn.disabled = false;
+                libraryStatus.textContent = 'Login to add to library';
+                libraryBtn.addEventListener('click', () => {
+                    window.location.href = '{{ "/login" | relURL }}';
+                });
             }
-        }, 100);
+        });
 
-        function initNovelPage() {
-            const libraryBtn = document.getElementById('add-to-library-btn');
-            const libraryStatus = document.getElementById('library-status');
-            const startReadingBtn = document.getElementById('start-reading-btn');
+        function addToLibrary(uid) {
+    // We grab all the data from our button's attributes
+    const novelData = {
+        title: libraryBtn.dataset.novelTitle,
+        permalink: libraryBtn.dataset.novelPermalink,
+        image: libraryBtn.dataset.novelImage,
+        status: libraryBtn.dataset.novelStatus,     // NEW
+        genres: libraryBtn.dataset.novelGenres,   // NEW
+        addedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    db.collection('users').doc(uid).collection('library').doc(novelId).set(novelData)
+        .then(() => console.log('Added to library with full details!'))
+        .catch(e => console.error('Error adding: ', e));
+}
 
-            const novelId = libraryBtn.dataset.novelId;
+        function removeFromLibrary(uid, novelId) {
+             db.collection('users').doc(uid).collection('library').doc(novelId).delete()
+                .then(() => console.log('Removed from library!'))
+                .catch(e => console.error('Error removing: ', e));
+        }
 
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    // User is logged in, enable the button
-                    libraryBtn.disabled = false;
-                    const libraryDocRef = db.collection('users').doc(user.uid).collection('library').doc(novelId);
+        // --- NEW FUNCTION for the View Counting System ---
+function initViewCounter() {
+    const viewWidget = document.querySelector('[data-novel-id-for-views]');
+    if (!viewWidget) return;
 
-                    // Check if this novel is already in the library and update UI
-                    libraryDocRef.onSnapshot(doc => {
-                        if (doc.exists) {
-                            libraryBtn.textContent = 'In Library ✔️';
-                            libraryBtn.classList.add('bg-green-600', 'text-white');
-                            libraryBtn.classList.remove('bg-(--color-muted)', 'text-(--color-muted-foreground)');
-                            libraryBtn.onclick = () => removeFromLibrary(user.uid, novelId);
-                        } else {
-                            libraryBtn.textContent = 'Add to Library';
-                            libraryBtn.classList.remove('bg-green-600', 'text-white');
-                            libraryBtn.classList.add('bg-(--color-muted)', 'text-(--color-muted-foreground)');
-                            libraryBtn.onclick = () => addToLibrary(user.uid);
-                        }
-                    });
+    const novelId = viewWidget.dataset.novelIdForViews;
+    const viewCountEl = document.getElementById('view-count-display');
+    const viewDocRef = db.collection('views').doc(novelId);
 
+    // 1. Listen for real-time updates and display the count
+    viewDocRef.onSnapshot(doc => {
+        if (doc.exists) {
+            // Format the number with commas (e.g., 1,234,567)
+            viewCountEl.textContent = doc.data().count.toLocaleString();
+        } else {
+            viewCountEl.textContent = '0';
+        }
+    });
 
+    // 2. Trigger the logic to increment the count
+    incrementViewCount(novelId);
+}
 
-                } else {
-                    // User is not logged in
-                    libraryBtn.disabled = false;
-                    libraryStatus.textContent = 'Login to add to library';
-                    libraryBtn.addEventListener('click', () => {
-                        window.location.href = '{{ "/login" | relURL }}';
-                    });
+// --- NEW FUNCTION to handle the increment logic ---
+async function incrementViewCount(novelId) {
+    const user = auth.currentUser;
+    const viewDocRef = db.collection('views').doc(novelId);
+
+    if (user) {
+        // --- LOGGED-IN USER LOGIC ---
+        const viewerDocRef = viewDocRef.collection('viewers').doc(user.uid);
+        const doc = await viewerDocRef.get();
+
+        if (!doc.exists) {
+            // This user has NOT viewed before. Increment the count.
+            console.log('Counting view for logged-in user:', user.uid);
+            // Use a batch to do both operations at once
+            const batch = db.batch();
+            // Operation 1: Increment the main count
+            batch.set(viewDocRef, { count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+            // Operation 2: Mark this user as having viewed
+            batch.set(viewerDocRef, { viewedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            await batch.commit();
+        } else {
+            // User has viewed before, do nothing.
+            console.log('User has already been counted.');
+        }
+
+    } else {
+        // --- ANONYMOUS USER LOGIC ---
+        const sessionStorageKey = `viewed-${novelId}`;
+        const hasViewedInSession = sessionStorage.getItem(sessionStorageKey);
+
+        if (!hasViewedInSession) {
+            // This browser session has NOT viewed before. Increment the count.
+            console.log('Counting view for anonymous session.');
+            await viewDocRef.set({
+                count: firebase.firestore.FieldValue.increment(1)
+            }, { merge: true });
+
+            // Mark this session as having viewed to prevent F5 spam
+            sessionStorage.setItem(sessionStorageKey, 'true');
+        } else {
+            // Session has been counted, do nothing.
+            console.log('Anonymous session has already been counted.');
+        }
+    }
+}
+
+        // --- NEW FUNCTION for the Rating System ---
+function initRatingWidget() {
+    const widget = document.querySelector('.rating-widget');
+    if (!widget) return; // Exit if no rating widget on page
+
+    const novelSlug = widget.dataset.novelSlug;
+    if (!novelSlug) return; // Exit if no slug is defined
+
+    const ratingRef = db.collection('ratings').doc(novelSlug);
+    const averageEl = widget.querySelector('.rating-average');
+    const countEl = widget.querySelector('.rating-count');
+    const starsContainer = widget.querySelector('.stars');
+
+    // 1. Listen for real-time updates to the novel's average rating
+    ratingRef.onSnapshot(doc => {
+        if (doc.exists) {
+            const data = doc.data();
+            averageEl.textContent = (data.average || 0).toFixed(1);
+            countEl.textContent = `(${(data.count || 0)} votes)`;
+        } else {
+            averageEl.textContent = 'N/A';
+            countEl.textContent = `(0 votes)`;
+        }
+    });
+
+    // 2. Handle user interaction based on auth state
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            // User is logged in
+            widget.classList.remove('is-disabled');
+            starsContainer.title = "Rate this novel";
+            widget.querySelectorAll('input').forEach(input => input.disabled = false);
+
+            // Check for user's previous vote
+            const userVoteRef = ratingRef.collection('votes').doc(user.uid);
+            userVoteRef.get().then(voteDoc => {
+                if (voteDoc.exists) {
+                    const previousRating = voteDoc.data().rating;
+                    const starInput = widget.querySelector(`input[value="${previousRating}"]`);
+                    if (starInput) starInput.checked = true;
                 }
             });
 
-            function addToLibrary(uid) {
-                // We grab all the data from our button's attributes
-                const novelData = {
-                    title: libraryBtn.dataset.novelTitle,
-                    permalink: libraryBtn.dataset.novelPermalink,
-                    image: libraryBtn.dataset.novelImage,
-                    status: libraryBtn.dataset.novelStatus,
-                    genres: libraryBtn.dataset.novelGenres,
-                    addedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                db.collection('users').doc(uid).collection('library').doc(novelId).set(novelData)
-                    .then(() => console.log('Added to library with full details!'))
-                    .catch(e => console.error('Error adding: ', e));
-            }
+            // Add event listener for new ratings
+            starsContainer.addEventListener('change', (e) => {
+                const newRating = parseInt(e.target.value, 10);
+                if (newRating) {
+                    setRating(novelSlug, user.uid, newRating);
+                }
+            });
 
-            function removeFromLibrary(uid, novelId) {
-                db.collection('users').doc(uid).collection('library').doc(novelId).delete()
-                    .then(() => console.log('Removed from library!'))
-                    .catch(e => console.error('Error removing: ', e));
-            }
-
-
+        } else {
+            // User is not logged in
+            widget.classList.add('is-disabled');
+            starsContainer.title = "Please log in to rate";
+            widget.querySelectorAll('input').forEach(input => input.disabled = true);
         }
     });
+}
+
+// --- NEW FUNCTION to perform the rating transaction ---
+async function setRating(novelSlug, userId, newRating) {
+    const ratingRef = db.collection('ratings').doc(novelSlug);
+    const userVoteRef = ratingRef.collection('votes').doc(userId);
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const novelDoc = await transaction.get(ratingRef);
+            const userVoteDoc = await transaction.get(userVoteRef);
+
+            let currentData = novelDoc.exists ? novelDoc.data() : { average: 0, count: 0 };
+            let newCount = currentData.count;
+            let newTotalScore = currentData.average * currentData.count;
+
+            if (userVoteDoc.exists) {
+                // User is changing their vote, so subtract the old value first
+                const oldRating = userVoteDoc.data().rating;
+                newTotalScore = newTotalScore - oldRating + newRating;
+            } else {
+                // User is voting for the first time
+                newCount++;
+                newTotalScore += newRating;
+            }
+
+            const newAverage = newCount > 0 ? newTotalScore / newCount : 0;
+
+            // Update the user's individual vote
+            transaction.set(userVoteRef, { rating: newRating });
+            
+            // Update the public aggregate document
+            transaction.set(ratingRef, {
+                average: newAverage,
+                count: newCount
+            }, { merge: true }); // Use merge to avoid overwriting other potential fields
+        });
+        console.log('Rating updated successfully!');
+    } catch (error) {
+        console.error("Rating transaction failed: ", error);
+    }
+}
+    }
+});
 
 </script>
 {{ end }}

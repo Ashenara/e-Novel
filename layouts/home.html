@@ -1,36 +1,22 @@
 {{ define "main" }}
-<article class="container mx-auto px-4 md:px-8 py-4 space-y-16">
-
-    <!-- Main Content Area -->
+<article class="container mx-auto px-4 md:px-8 py-8 space-y-6">
+    {{/*<h1 class="text-4xl text-center font-bold text-(--color-foreground) pt-6 ">{{ .Title | safeHTML }}</h1>
+    <!-- Hero Section - Novel Slider -->
+    
+        {{ partial "home/hero.html" . }}*/}}
+        
+    <!-- Main Content Area (Unchanged) -->
     <div class="flex flex-col md:flex-row md:space-x-8">
         <!-- Left Column (65%) -->
         <div class="w-full md:w-[65%] mb-12 md:mb-0 space-y-8">
-            <section class="py-0">
-                <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">New Releases</h2>
-                {{ partial "home/new-releases.html" . }}
-            </section>
-
-            <section class="py-0">
-                <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">Announcements</h2>
-                {{ partial "home/announcements.html" . }}
-            </section>
-
-            <section class="py-0">
-                <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">Latest Releases</h2>
-                {{ partial "home/novel-table-latest.html" . }}
-            </section>
+            {{ partial "home/new-releases.html" . }}
+            {{ partial "home/about-announcements.html" . }}
+            {{ partial "home/novel-table-latest.html" . }}
         </div>
-
         <!-- Right Column (35%) -->
         <div class="w-full md:w-[35%] space-y-12">
-            <section class="py-0">
-                <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-center">About</h2>
-                {{ partial "home/about.html" . }}
-            </section>
-            <section class="py-0">
-                <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">Random Picks</h2>
-                {{ partial "home/random-novels.html" . }}
-            </section>
+            {{ partial "home/novel-stats.html" . }}
+            {{ partial "home/random-novels.html" . }}
         </div>
     </div>
 </article>

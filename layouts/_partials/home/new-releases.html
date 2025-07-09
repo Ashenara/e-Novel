@@ -1,16 +1,140 @@
-<div class="flex flex-nowrap overflow-x-auto pb-4 hide-scrollbar space-x-4">
-    {{ $allNovelOverviews := where (where site.Pages "Section" "novels") "IsNode" true }}
-    {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
+{{/*
+    This is the robust logic to get ONLY novel overview pages.
+    It filters for pages in the "novels" section that are "nodes" (i.e., _index.md files)
+    and respects your excludeFromLists frontmatter parameter.
+*/}}
+{{ $allNovelOverviews := where (where site.Pages "Section" "novels") "IsNode" true }}
+{{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
 
-    {{ $newReleases := first 15 (sort $allNovelOverviews "PublishDate" "desc") }}
-    
+{{/* Now we sort the valid novels by publish date to get the newest ones */}}
+{{ $newReleases := first 15 (sort $allNovelOverviews "PublishDate" "desc") }}
+
+<section class="py-0">
+    <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">New Releases</h2>
+
     {{ if $newReleases }}
-        {{ range $newReleases }}
-            {{ partial "card/novel-card.html" . }}
-        {{ end }}
+    {{/* 
+        We add a wrapper div with 'relative' positioning to contain the arrows.
+        We also add a unique ID to the container to target it with JavaScript.
+    */}}
+    <div id="new-releases-container" class="relative">
+        {{/* Left Arrow Button */}}
+        <button id="scroll-left-btn" class="scroll-arrow scroll-arrow-left">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+
+        <div id="new-releases-scroller" class="flex flex-nowrap overflow-x-auto pb-4 hide-scrollbar space-x-4">
+            {{ range $newReleases }}
+                {{ partial "card/novel-card.html" . }}
+            {{ end }}
+        </div>
+
+        {{/* Right Arrow Button */}}
+        <button id="scroll-right-btn" class="scroll-arrow scroll-arrow-right">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+    </div>
+
+    {{/*
+        The CSS and JavaScript are placed here, inside the 'if' block.
+        This ensures they are only added to the page when the carousel exists.
+    */}}
+    <style>
+        .scroll-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem; /* 40px */
+            height: 2.5rem; /* 40px */
+            border-radius: 9999px; /* circle */
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .scroll-arrow:hover {
+            background-color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+        .scroll-arrow:focus {
+            outline: 2px solid #0891b2; /* Accessibility */
+        }
+        .scroll-arrow.hidden {
+            display: none;
+        }
+        .scroll-arrow-left {
+            left: -1.25rem; /* -20px, half of the button's width */
+        }
+        .scroll-arrow-right {
+            right: -1.25rem; /* -20px, half of the button's width */
+        }
+        /* Style for dark mode if you have one */
+        [data-theme="dark"] .scroll-arrow {
+             background-color: rgba(30, 41, 59, 0.9);
+             color: #e5e7eb;
+             border-color: #4b5563;
+        }
+        [data-theme="dark"] .scroll-arrow:hover {
+            background-color: rgb(51, 65, 85);
+        }
+    </style>
+
+    <script>
+        // Use an IIFE to avoid polluting the global scope
+        (function() {
+            // Wait for the DOM to be fully loaded
+            document.addEventListener('DOMContentLoaded', () => {
+                const container = document.getElementById('new-releases-container');
+                // Only run the script if the container exists on the page
+                if (!container) return;
+
+                const scroller = document.getElementById('new-releases-scroller');
+                const scrollLeftBtn = document.getElementById('scroll-left-btn');
+                const scrollRightBtn = document.getElementById('scroll-right-btn');
+                
+                // Set the amount to scroll by. A good starting point is 75% of the scroller's width.
+                const scrollAmount = scroller.clientWidth * 0.75;
+
+                function checkScrollButtons() {
+                    // Use a small tolerance to handle floating point inaccuracies
+                    const atStart = scroller.scrollLeft <= 0;
+                    const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 1;
+                    
+                    scrollLeftBtn.classList.toggle('hidden', atStart);
+                    scrollRightBtn.classList.toggle('hidden', atEnd);
+                }
+
+                // Add event listeners for the buttons
+                scrollLeftBtn.addEventListener('click', () => {
+                    scroller.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                });
+
+                scrollRightBtn.addEventListener('click', () => {
+                    scroller.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                });
+
+                // Check button visibility on scroll events (including smooth scroll)
+                scroller.addEventListener('scroll', checkScrollButtons);
+
+                // Initial check when the page loads
+                checkScrollButtons();
+
+                // Bonus: Re-check on window resize in case the layout changes
+                window.addEventListener('resize', checkScrollButtons);
+            });
+        })();
+    </script>
+
     {{ else }}
         <p class="text-(--color-muted-foreground) shrink-0">
             No new releases found.
         </p>
     {{ end }}
-</div>
+
+</section>

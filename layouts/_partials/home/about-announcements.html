@@ -1,0 +1,173 @@
+<section class="bg-(--color-card) rounded-lg shadow-md">
+    <!-- Component Header with Tab Navigation -->
+    <div class="p-4 border-b border-(--color-border) flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <h2 class="text-xl font-bold text-(--color-foreground)">Info Center</h2>
+        <div class="flex-shrink-0 bg-(--color-muted) p-1 rounded-full self-start sm:self-center">
+            <button id="about-tab-btn" class="about-announcements-tab-button active-tab">About</button>
+            <button id="announcements-tab-btn" class="about-announcements-tab-button">Announcements</button>
+        </div>
+    </div>
+
+    <!-- Content Panes Container -->
+    <div class="p-6">
+        <!-- About Pane -->
+        <div id="about-pane" class="about-announcements-pane active-pane">
+            <div class="space-y-8">
+                <!-- Author Bio Section -->
+                <div class="flex flex-col sm:flex-row items-center text-center sm:text-left gap-6">
+                    {{- with .Site.Params.author.avatar -}}
+                    <img loading="lazy" src="{{ . | absURL }}" alt="{{ $.Site.Params.author.name }}"
+                        class="w-24 h-24 rounded-full object-cover shadow-lg shrink-0">
+                    {{- end -}}
+                    <div class="space-y-2">
+                        {{ with .Site.Params.author.name }}
+                        <h3 class="text-2xl font-bold text-(--color-foreground)">{{ . }}</h3>
+                        {{ end }}
+                        {{ with .Content }}
+                        <div class="text-(--color-muted-foreground) leading-relaxed">
+                            {{ . | markdownify | truncate 250 }}
+                        </div>
+                        {{ else }}
+                        {{ with .Site.Params.description }}
+                        <p class="text-(--color-muted-foreground) leading-relaxed">{{ . }}</p>
+                        {{ else }}
+                        {{ with .Params.description }}
+                        <p class="text-(--color-muted-foreground) leading-relaxed">{{ . }}</p>
+                        {{ else }}
+                        <p class="text-(--color-muted-foreground) leading-relaxed">No description provided.</p>
+                        {{ end }}
+                        {{ end }}
+                        {{ end }}
+                    </div>
+                </div>
+
+                <!-- Social & Donate Links -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-(--color-border)">
+                    {{ if .Site.Params.social }}
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-center md:text-left text-(--color-foreground)">Follow Me</h4>
+                        <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                            {{ range .Site.Params.social }}
+                                {{ if reflect.IsMap . }}
+                                    <a href="{{ .url }}" target="_blank" rel="noopener noreferrer" title="{{ .name }}"
+                                        class="w-10 h-10 flex items-center justify-center rounded-full bg-(--color-muted) text-(--color-muted-foreground) hover:bg-(--color-primary) hover:text-white transition-all">
+                                        {{ with .icon }}{{ with resources.Get . }}
+                                            <img src="{{ .RelPermalink }}" alt="" class="w-5 h-5 themeable-icon">
+                                        {{ end }}{{ else }}<span class="text-xs font-bold">{{ .name | substr 0 2 }}</span>{{ end }}
+                                    </a>
+                                {{ end }}
+                            {{ end }}
+                        </div>
+                    </div>
+                    {{ end }}
+
+                    {{ with .Site.Params.donate }}
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-center md:text-left text-(--color-foreground)">Support Us</h4>
+                        <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                            {{ range . }}
+                            <a href="{{ .url }}" target="_blank" rel="noopener noreferrer" title="Donate via {{ .name }}"
+                                class="w-10 h-10 flex items-center justify-center rounded-full bg-(--color-muted) text-white hover:bg-(--color-primary) transition-all duration-200 transform hover:scale-110">
+                                {{ with .icon }}{{ with resources.Get . }}
+                                    <img src="{{ .RelPermalink }}" alt="" class="w-6 h-6 themeable-icon">
+                                {{ end }}{{ end }}
+                            </a>
+                            {{ end }}
+                        </div>
+                    </div>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Announcements Pane -->
+        <div id="announcements-pane" class="about-announcements-pane">
+            {{ $announcements := where (where .Site.RegularPages "Section" "blog") "Params.announcement" true }}
+            {{ $latestAnnouncements := first 4 (sort $announcements "PublishDate" "desc") }}
+            
+            <div class="space-y-5">
+                {{ if $latestAnnouncements }}
+                    {{ range $i, $announcement := $latestAnnouncements }}
+                        <a href="{{ .Permalink }}" class="group block p-4 rounded-lg hover:bg-(--color-muted) transition-colors">
+                            <div class="flex items-start gap-4">
+                                <div class="shrink-0 mt-1 bg-(--color-primary)/10 text-(--color-primary) rounded-full p-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-(--color-foreground) group-hover:text-(--color-primary) transition-colors mb-1">
+                                        {{ .Title }}
+                                    </h3>
+                                    <p class="text-sm text-(--color-muted-foreground) line-clamp-2">
+                                        {{ .Summary | plainify | truncate 120 }}
+                                    </p>
+                                    <div class="text-xs text-(--color-muted-foreground) mt-2">{{ .PublishDate.Format "January 2, 2006" }}</div>
+                                </div>
+                            </div>
+                        </a>
+                    {{ end }}
+                {{ else }}
+                    <div class="text-center py-8">
+                        <p class="text-(--color-muted-foreground)">No recent announcements.</p>
+                    </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Self-contained CSS and JS for the tab component -->
+<style>
+    .about-announcements-tab-button {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 9999px;
+        color: var(--color-muted-foreground);
+        transition: all 0.2s ease-in-out;
+    }
+    .about-announcements-tab-button.active-tab {
+        color: var(--color-primary-foreground, white);
+        background-color: var(--color-primary);
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
+    .about-announcements-pane {
+        display: none;
+    }
+    .about-announcements-pane.active-pane {
+        display: block;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+(function() {
+    document.addEventListener('DOMContentLoaded', () => {
+        const component = document.querySelector('.bg-\\(-\\-color-card\\).rounded-lg.shadow-md');
+        if (!component || !component.querySelector('#about-tab-btn')) return;
+
+        const aboutTabBtn = component.querySelector('#about-tab-btn');
+        const announcementsTabBtn = component.querySelector('#announcements-tab-btn');
+        const aboutPane = component.querySelector('#about-pane');
+        const announcementsPane = component.querySelector('#announcements-pane');
+
+        const setActiveTab = (activeBtn, inactiveBtn, activePane, inactivePane) => {
+            activeBtn.classList.add('active-tab');
+            inactiveBtn.classList.remove('active-tab');
+            activePane.classList.add('active-pane');
+            inactivePane.classList.remove('active-pane');
+        };
+
+        aboutTabBtn.addEventListener('click', () => {
+            setActiveTab(aboutTabBtn, announcementsTabBtn, aboutPane, announcementsPane);
+        });
+
+        announcementsTabBtn.addEventListener('click', () => {
+            setActiveTab(announcementsTabBtn, aboutTabBtn, announcementsPane, aboutPane);
+        });
+    });
+})();
+</script>

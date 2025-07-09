@@ -18,7 +18,7 @@
 {{- $pageTitle := "" -}}
 {{- if $page.IsHome -}}
     {{- /* Homepage gets the descriptive title from the site config */ -}}
-    {{- $pageTitle = printf "%s | %s" $site.Title $site.Params.description -}}
+    {{- $pageTitle = printf "%s | %s" $site.Title .Params.title -}}
 {{- else -}}
     {{- /* Other pages get "Page Title | Site Title" */ -}}
     {{- $pageTitle = printf "%s | %s" $page.Title $site.Title -}}
@@ -69,7 +69,6 @@
         {{- end -}}
     {{- end -}}
 {{- end -}}
-
 
 {{/* ============================================= */}}
 {{/* 2. RENDER HTML TAGS                           */}}

@@ -1,78 +1,155 @@
-<div class="bg-(--color-card) p-0 md:p-4 rounded-lg md:shadow-md overflow-x-auto">
-    <table class="w-full text-sm text-left">
-        <thead class="text-xs text-(--color-muted-foreground) uppercase bg-(--color-muted)">
-            <tr>
-                <th scope="col" class="px-4 py-3 rounded-l-lg">Novel</th>
-                <th scope="col" class="px-4 py-3">Latest Chapter</th>
-                <th scope="col" class="px-4 py-3 hidden md:table-cell">Author</th>
-                <th scope="col" class="px-4 py-3 hidden lg:table-cell rounded-r-lg">Updated</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{ $allChapters := where .Site.RegularPages "Params.chapter_number" "ne" nil }}
-            {{ $latestChapters := sort $allChapters "PublishDate" "desc" }}
-            {{ $novelsInTable := slice }}
-            {{ $limit := 10 }}
-            {{ $novelsFound := 0 }}
-            
-            {{ range $latestChapters }}
-                {{ if lt (len $novelsInTable) $limit }}
-                    {{ $novel := .Parent }}
-                    {{ if and $novel (not (in $novelsInTable $novel.Permalink)) }}
-                        {{ $novelsInTable = $novelsInTable | append $novel.Permalink }}
-                        {{ $novelsFound = add $novelsFound 1 }}
-                        
-                        <tr class="border-b border-(--color-border) hover:bg-(--color-muted) transition-colors">
-                            <!-- Novel Title & Cover -->
-                            <td class="px-4 py-3">
-                                <div class="flex items-center gap-3">
-                                    <a href="{{ $novel.Permalink }}" class="shrink-0">
-                                        {{ $imageSrc := "" }}
-                                        {{ with $novel.Params.image }}{{ $imageSrc = . | relURL }}{{ else }}{{ $imageSrc = "https://placehold.co/48x64/27272A/FFFFFF?text=C" }}{{ end }}
-                                        <img loading="lazy" src="{{ $imageSrc }}" alt="Novel cover for {{ $novel.Title }}" class="w-12 h-16 object-cover rounded-md shadow-sm">
-                                    </a>
-                                    <div>
-                                        <a href="{{ $novel.Permalink }}" class="font-bold text-(--color-foreground) hover:text-(--color-primary) transition-colors line-clamp-2">
-                                            {{ $novel.Title }}
-                                        </a>
-                                    </div>
-                                </div>
-                            </td>
-                            <!-- Latest Chapter -->
-                            <td class="px-4 py-3">
-                                <a href="{{ .Permalink }}" class="text-(--color-muted-foreground) hover:text-(--color-primary) transition-colors line-clamp-2">
-                                    {{ .Title }}
-                                </a>
-                            </td>
-                            <!-- Author -->
-                            <td class="px-4 py-3 hidden md:table-cell">
-                                {{ $writer := "N/A" }}
-                                {{ with $novel.Params.writer }}
-                                {{ if reflect.IsSlice . }}
-                                {{ $writer = index . 0 }}
-                                {{ else }}
-                                {{ $writer = . }}
-                                {{ end }}
-                                {{ end }}
-                                <span class="text-(--color-muted-foreground)">{{ $writer }}</span>
-                            </td>
-                            <!-- Updated Date -->
-                            <td class="px-4 py-3 hidden lg:table-cell">
-                                <span class="text-(--color-muted-foreground) font-medium">{{ .PublishDate.Format "Jan 2, 2006" }}</span>
-                            </td>
-                        </tr>
+<section class="py-0">
+    <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">Latest Releases</h2>
 
+{{/* Wrap everything in a container for the JS to target */}}
+<div id="latest-releases-container">
+    <div class="bg-(--color-card) rounded-lg p-0 md:p-4 overflow-x-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="text-xs text-(--color-muted-foreground) uppercase bg-(--color-muted)">
+                <tr>
+                    <th scope="col" class="px-2 py-3 rounded-l-lg">Novel</th>
+                    <th scope="col" class="px-2 py-3">Latest Chapter</th>
+                    {{/*<th scope="col" class="px-4 py-3 hidden md:table-cell">Author</th>*/}}
+                    <th scope="col" class="px-2 py-3 hidden lg:table-cell rounded-r-lg">Updated</th>
+                </tr>
+            </thead>
+            {{/* Add an ID to the tbody so our JavaScript can find it */}}
+            <tbody id="latest-releases-tbody">
+                {{/* --- New, Efficient Logic --- */}}
+
+                {{ $allChapters := where .Site.RegularPages "Params.chapter_number" "ne" nil }}
+                {{ $latestChapters := sort $allChapters "PublishDate" "desc" }}
+
+                {{ $novelsInTable := slice }}
+                {{/* CHANGE: Increase limit to fetch more items for lazy loading */}}
+                {{ $limit := 25 }}
+                {{ $novelsFound := 0 }}
+                
+                {{ range $latestChapters }}
+                    {{ if lt (len $novelsInTable) $limit }}
+                        {{ $novel := .Parent }}
+                        {{ if and $novel (not (in $novelsInTable $novel.Permalink)) }}
+                            {{ $novelsInTable = $novelsInTable | append $novel.Permalink }}
+                            {{ $novelsFound = add $novelsFound 1 }}
+                            
+                            {{/* CHANGE: Add a class to each row for the JS to target */}}
+                            <tr class="border-b border-(--color-border) lazy-load-item">
+                                <!-- Novel Title & Cover -->
+                                <td class="px-0 py-3">
+                                    <div class="flex items-center gap-3">
+                                        <a href="{{ $novel.Permalink }}" class="shrink-0">
+                                            {{ $imageSrc := "" }}
+                                            {{ with $novel.Params.image }}{{ $imageSrc = . | relURL }}{{ else }}{{ $imageSrc = "https://placehold.co/48x64/27272A/FFFFFF?text=C" }}{{ end }}
+                                            <img loading="lazy" src="{{ $imageSrc }}" alt="Novel cover for {{ $novel.Title }}" class="w-12 h-16 object-cover rounded-md shadow-sm">
+                                        </a>
+                                        <div>
+                                            <a href="{{ $novel.Permalink }}" class="font-bold text-(--color-foreground) hover:text-(--color-primary) transition-colors line-clamp-2">
+                                                {{ $novel.Title }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <!-- Latest Chapter -->
+                                <td class="px-2 py-3">
+                                    <a href="{{ .Permalink }}" class="text-(--color-muted-foreground) hover:text-(--color-primary) transition-colors line-clamp-2">
+                                        {{ .Title }}
+                                    </a>
+                                </td>
+                                <!-- Author -->
+                                {{/*<td class="px-4 py-3 hidden md:table-cell">
+                                    {{ $writer := "N/A" }}
+                                    {{ with $novel.Params.writer }}
+                                    {{ if reflect.IsSlice . }}{{ $writer = index . 0 }}{{ else }}{{ $writer = . }}{{ end }}
+                                    {{ end }}
+                                    <span class="text-(--color-muted-foreground)">{{ $writer }}</span>
+                                </td>*/}}
+                                <!-- Updated Date -->
+                                <td class="px-2 py-3 hidden lg:table-cell">
+                                    <span class="text-(--color-muted-foreground) font-medium">{{ .PublishDate.Format "Jan 2" }}</span>
+                                </td>
+                            </tr>
+
+                        {{ end }}
                     {{ end }}
                 {{ end }}
-            {{ end }}
 
-            {{ if eq $novelsFound 0 }}
-                <tr>
-                    <td colspan="4" class="text-center text-(--color-muted-foreground) py-8">
-                        No recent chapter releases found.
-                    </td>
-                </tr>
-            {{ end }}
-        </tbody>
-    </table>
+                {{/* Show this message if the loop found no valid novels */}}
+                {{ if eq $novelsFound 0 }}
+                    <tr>
+                        <td colspan="4" class="text-center text-(--color-muted-foreground) py-8">
+                            No recent chapter releases found.
+                        </td>
+                    </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
+
+    {{/* --- "Load More" Button --- */}}
+    {{/* Only render the button if there are more than 5 items to begin with */}}
+    {{ if gt $novelsFound 5 }}
+    <div class="mt-4 flex justify-center">
+        <button id="load-more-btn" class="px-6 py-2 bg-(--color-muted) text-(--color-muted-foreground) rounded-full font-semibold hover:bg-(--color-primary) hover:text-(--color-foreground) transition-colors">
+            Load More
+        </button>
+    </div>
+    {{ end }}
 </div>
+
+{{/* --- CSS and JavaScript for Lazy Loading --- */}}
+<style>
+    /* Utility class to hide elements. We apply this with JS. */
+    .lazy-load-item.hidden {
+        display: none;
+    }
+</style>
+
+<script>
+    (function() {
+        // Wait for the DOM to be fully loaded to ensure all elements are available
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('latest-releases-container');
+            if (!container) return; // Exit if this component isn't on the page
+
+            const loadMoreBtn = container.querySelector('#load-more-btn');
+            const allRows = container.querySelectorAll('.lazy-load-item');
+
+            // If there's no button (meaning 5 or fewer items), no need to run the script
+            if (!loadMoreBtn) {
+                return;
+            }
+
+            const initialShow = 5; // Number of items to show initially
+            const step = 5;        // Number of items to reveal per click
+            let currentlyShown = 0;
+
+            // Function to show a batch of items
+            const showItems = () => {
+                const nextLimit = currentlyShown + step;
+                
+                // Reveal the next batch of rows
+                for (let i = currentlyShown; i < nextLimit && i < allRows.length; i++) {
+                    allRows[i].classList.remove('hidden');
+                }
+
+                currentlyShown = nextLimit;
+
+                // If all items are now visible, hide the "Load More" button
+                if (currentlyShown >= allRows.length) {
+                    loadMoreBtn.style.display = 'none';
+                }
+            };
+            
+            // --- INITIAL SETUP ---
+            // 1. Hide all items initially
+            allRows.forEach(row => row.classList.add('hidden'));
+            
+            // 2. Show the first batch of items
+            showItems();
+
+            // 3. Add the click event listener to the button
+            loadMoreBtn.addEventListener('click', showItems);
+        });
+    })();
+</script>
+</section>

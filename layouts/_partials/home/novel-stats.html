@@ -1,0 +1,201 @@
+<section class="novel-stats-widget bg-(--color-card) rounded-lg p-4 shadow-md">
+    <!-- Tab Navigation -->
+    <div class="flex border-b border-(--color-border) mb-4">
+        <button id="stats-tab-rating" class="stats-tab-button active-tab">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+            Top Rated
+        </button>
+        <button id="stats-tab-views" class="stats-tab-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 7.97 5 9.5 5c.828 0 1.548.294 2.152.858l-1.015 1.015A3.01 3.01 0 009.5 6.5c-.996 0-1.828.508-2.344 1.272l-1.824-1.824zm1.06 4.39a6.012 6.012 0 01-1.912-2.706C3.488 9.27 2.03 10 3.5 10c-.828 0-1.548-.294-2.152-.858l1.015-1.015A3.01 3.01 0 003.5 8.5c.996 0 1.828-.508 2.344-1.272l1.824 1.824z" clip-rule="evenodd" /></svg>
+            Most Viewed
+        </button>
+    </div>
+
+    <!-- Content Panes -->
+    <div id="stats-pane-rating" class="stats-pane active-pane">
+        <ul id="rating-list" class="space-y-3">
+            <li class="stats-loading-placeholder">Loading ratings...</li>
+        </ul>
+        <div class="mt-4 text-center">
+            <button id="rating-load-more" class="load-more-btn js-hidden">Load More</button>
+        </div>
+    </div>
+    <div id="stats-pane-views" class="stats-pane">
+        <ul id="views-list" class="space-y-3">
+            <li class="stats-loading-placeholder">Loading views...</li>
+        </ul>
+        <div class="mt-4 text-center">
+            <button id="views-load-more" class="load-more-btn js-hidden">Load More</button>
+        </div>
+    </div>
+
+    <!-- Hidden Hugo-built data template -->
+    <div id="novel-stats-data-template" class="hidden">
+        {{ $allNovels := where (where .Site.Pages "Section" "novels") "IsNode" true }}
+        {{ $allNovels = where $allNovels "Params.excludeFromLists" "!=" true }}
+        {{ range $allNovels }}
+        <div class="novel-item-template" data-novel-id="{{ .File.UniqueID | default (.Title | urlize) }}">
+            <a href="{{ .Permalink }}" class="novel-item-link">
+                {{ $imageSrc := "" }}
+                {{ with .Params.image }}{{ $imageSrc = . | relURL }}{{ else }}{{ $imageSrc = "https://placehold.co/40x56/27272A/FFFFFF?text=C" }}{{ end }}
+                <img loading="lazy" src="{{ $imageSrc }}" alt="{{ .Title }} Cover" class="novel-item-image">
+                <div class="novel-item-info">
+                    <h4 class="novel-item-title">{{ .Title }}</h4>
+                    <div class="novel-item-stat"></div>
+                </div>
+            </a>
+        </div>
+        {{ end }}
+    </div>
+</section>
+
+<!-- CSS for this specific component -->
+<style>
+    .stats-tab-button {
+        flex: 1; padding: 0.75rem 0.5rem; font-weight: 600; text-align: center; border-bottom: 3px solid transparent;
+        color: var(--color-muted-foreground); transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .stats-tab-button:hover { color: var(--color-primary); }
+    .stats-tab-button.active-tab { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+    .stats-pane { display: none; }
+    .stats-pane.active-pane { display: block; }
+    .stats-loading-placeholder { text-align: center; color: var(--color-muted-foreground); padding: 1rem; }
+    .novel-item-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; border-radius: 0.5rem; transition: background-color 0.2s; }
+    .novel-item-link:hover { background-color: var(--color-muted); }
+    .novel-item-image { width: 40px; height: 56px; object-fit: cover; border-radius: 0.25rem; flex-shrink: 0; }
+    .novel-item-info { overflow: hidden; }
+    .novel-item-title { font-weight: 600; color: var(--color-foreground); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .novel-item-stat { font-size: 0.8rem; color: var(--color-muted-foreground); display: flex; align-items: center; gap: 0.25rem; margin-top: 0.125rem; }
+    .load-more-btn {
+        padding: 0.5rem 1.5rem; font-weight: 600; background-color: var(--color-muted); color: var(--color-muted-foreground);
+        border-radius: 9999px; transition: all 0.2s;
+    }
+    .load-more-btn:hover { background-color: var(--color-primary); color: var(--color-primary-foreground); }
+    .js-hidden { display: none; }
+</style>
+
+<!-- JavaScript for this specific component -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const checkFirebase = setInterval(() => {
+        if (typeof db !== 'undefined' && typeof auth !== 'undefined') {
+            clearInterval(checkFirebase);
+            initNovelStatsWidget();
+        }
+    }, 100);
+});
+
+async function initNovelStatsWidget() {
+    const widget = document.querySelector('.novel-stats-widget');
+    if (!widget) return;
+
+    const ratingTab = widget.querySelector('#stats-tab-rating');
+    const viewsTab = widget.querySelector('#stats-tab-views');
+    const ratingPane = widget.querySelector('#stats-pane-rating');
+    const viewsPane = widget.querySelector('#stats-pane-views');
+    const ratingList = widget.querySelector('#rating-list');
+    const viewsList = widget.querySelector('#views-list');
+    const ratingLoadMoreBtn = widget.querySelector('#rating-load-more');
+    const viewsLoadMoreBtn = widget.querySelector('#views-load-more');
+    const templateContainer = widget.querySelector('#novel-stats-data-template');
+    
+    let ratingItemsShown = 0;
+    let viewItemsShown = 0;
+    let sortedByRating = [];
+    let sortedByViews = [];
+    const itemsPerLoad = 5;
+
+    const renderChunk = (listElement, loadMoreBtn, sortedData, currentCount, step) => {
+        const newLimit = currentCount + step;
+        for (let i = currentCount; i < newLimit && i < sortedData.length; i++) {
+            const novel = sortedData[i];
+            const listItem = document.createElement('li');
+            const clone = novel.template.cloneNode(true);
+            const statEl = clone.querySelector('.novel-item-stat');
+            
+            // --- CHANGE #1: UPDATE THE RATING DISPLAY ---
+            if (listElement.id === 'rating-list') {
+                statEl.innerHTML = `<svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg> <b>${novel.rating.toFixed(1)}</b> <span class="ml-1">(${novel.ratingCount.toLocaleString()} votes)</span>`;
+            } else {
+                statEl.innerHTML = `<b>${novel.viewCount.toLocaleString()}</b> views`;
+            }
+
+            listItem.appendChild(clone);
+            listElement.appendChild(listItem);
+        }
+        
+        const newTotalShown = Math.min(newLimit, sortedData.length);
+        if (newTotalShown >= sortedData.length) {
+            loadMoreBtn.classList.add('js-hidden');
+        }
+        return newTotalShown;
+    };
+
+    try {
+        const [ratingsSnapshot, viewsSnapshot] = await Promise.all([
+            db.collection('ratings').get(),
+            db.collection('views').get()
+        ]);
+
+        const ratingsData = {};
+        ratingsSnapshot.forEach(doc => { ratingsData[doc.id] = doc.data(); });
+
+        const viewsData = {};
+        viewsSnapshot.forEach(doc => { viewsData[doc.id] = doc.data(); });
+        
+        const novelTemplates = Array.from(templateContainer.children);
+        let allNovelsData = novelTemplates.map(template => {
+            const novelId = template.dataset.novelId;
+            // --- CHANGE #2: GET THE VOTE COUNT DATA ---
+            const ratingInfo = ratingsData[novelId] || { average: 0, count: 0 };
+            return {
+                id: novelId,
+                rating: ratingInfo.average,
+                ratingCount: ratingInfo.count, // Grab the vote count here
+                viewCount: (viewsData[novelId] || { count: 0 }).count,
+                template: template
+            };
+        });
+
+        sortedByRating = [...allNovelsData].sort((a, b) => b.rating - a.rating).slice(0, 10);
+        sortedByViews = [...allNovelsData].sort((a, b) => b.viewCount - a.viewCount).slice(0, 10);
+
+        ratingList.innerHTML = '';
+        viewsList.innerHTML = '';
+        ratingItemsShown = renderChunk(ratingList, ratingLoadMoreBtn, sortedByRating, 0, itemsPerLoad);
+        viewItemsShown = renderChunk(viewsList, viewsLoadMoreBtn, sortedByViews, 0, itemsPerLoad);
+
+        if (sortedByRating.length > itemsPerLoad) {
+            ratingLoadMoreBtn.classList.remove('js-hidden');
+        }
+        ratingLoadMoreBtn.addEventListener('click', () => {
+            ratingItemsShown = renderChunk(ratingList, ratingLoadMoreBtn, sortedByRating, ratingItemsShown, itemsPerLoad);
+        });
+        
+        if (sortedByViews.length > itemsPerLoad) {
+            viewsLoadMoreBtn.classList.remove('js-hidden');
+        }
+        viewsLoadMoreBtn.addEventListener('click', () => {
+            viewItemsShown = renderChunk(viewsList, viewsLoadMoreBtn, sortedByViews, viewItemsShown, itemsPerLoad);
+        });
+
+        ratingTab.addEventListener('click', () => {
+            ratingTab.classList.add('active-tab');
+            viewsTab.classList.remove('active-tab');
+            ratingPane.classList.add('active-pane');
+            viewsPane.classList.remove('active-pane');
+        });
+        viewsTab.addEventListener('click', () => {
+            viewsTab.classList.add('active-tab');
+            ratingTab.classList.remove('active-tab');
+            viewsPane.classList.add('active-pane');
+            ratingPane.classList.remove('active-pane');
+        });
+        
+    } catch (error) {
+        console.error("Error initializing novel stats widget:", error);
+        ratingList.innerHTML = '<li class="stats-loading-placeholder">Error loading data.</li>';
+        viewsList.innerHTML = '<li class="stats-loading-placeholder">Error loading data.</li>';
+    }
+}
+</script>
