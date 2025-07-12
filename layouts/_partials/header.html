@@ -4,7 +4,7 @@
         <!-- Site Logo and Title -->
         <a class="flex items-center gap-3" href="{{ "/" | relURL }}">
             {{ with .Site.Params.logo }}
-                <img loading="lazy" src="{{ . | relURL }}" alt="Site Logo" class="h-10 w-10 rounded-full object-cover"/>
+                <img loading="lazy" src="{{ . | relURL }}" alt="{{ $.Site.Title }}" class="h-10 w-10 rounded-full object-cover"/>
             {{ end }}
             <span class="text-xl font-bold text-(--color-foreground) sm:block">{{ .Site.Title }}</span>
         </a>
