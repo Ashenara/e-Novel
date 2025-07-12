@@ -16,13 +16,19 @@
 
 {{- /* --- Page Title --- */}}
 {{- $pageTitle := "" -}}
-{{- if $page.IsHome -}}
-    {{- /* Homepage gets the descriptive title from the site config */ -}}
-    {{- $pageTitle = printf "%s | %s" $site.Title .Params.title -}}
+{{- $siteTitle := .Site.Title -}}
+
+{{- if .IsHome -}}
+    {{- /* Homepage gets just the site title */ -}}
+    {{- $pageTitle = $siteTitle -}}
     <h1 class="seo-h1" style="display:none;">{{ .Params.title }}</h1>
+{{- else if and .IsPage (eq .Type "novels") .Parent -}}
+    {{- /* For novel chapters, format as "Chapter Title | Novel Title | Site Title" */ -}}
+    {{- $novelTitle := .Parent.Title -}}
+    {{- $pageTitle = printf "%s | %s | %s" .Title $novelTitle $siteTitle -}}
 {{- else -}}
-    {{- /* Other pages get "Page Title | Site Title" */ -}}
-    {{- $pageTitle = printf "%s | %s" $page.Title $site.Title -}}
+    {{- /* All other pages get "Page Title | Site Title" */ -}}
+    {{- $pageTitle = printf "%s | %s" .Title $siteTitle -}}
 {{- end -}}
 
 {{- /* --- Page Description --- */}}
