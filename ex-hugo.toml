@@ -8,7 +8,6 @@ title = ""
 description = "Download Free Epub Novels - Explore a vast collection in Fantasy, Sci-Fi, Romance, and more."
 favicon = "/favicon.ico"
 logo = "/images/logo.png" # Path to your site logo
-keywords = ""
 
 # Enable emoji support globally for better content presentation
 enableEmoji = true

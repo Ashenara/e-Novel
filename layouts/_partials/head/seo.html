@@ -51,6 +51,7 @@
     {{- end -}}
 {{- end -}}
 
+
 {{/* ============================================= */}}
 {{/* 2. RENDER HTML TAGS                           */}}
 {{/* ============================================= */}}
@@ -103,22 +104,22 @@
     "@type": "Book",
     "name": "{{ .Title }}",
     "description": "{{ $pageDesc }}",
-    "url": "{{ .Permalink }}",
-    {{- with .Params.writer }}
-"author": [
-  {{- range $i, $authorName := . -}}
-    {{- if $i }},{{ end -}}
-    {
-      "@type": "Person",
-      "name": "{{ $authorName }}"
-    }
-  {{- end -}}
-],
-{{- end }}
-    {{- with $pageImage }}
-    "image": "{{ . }}",
-    {{- end }}
-    "inLanguage": "{{ $site.Language.Lang | default "en-us" }}"
+    "url": "{{ .Permalink }}"
+    {{- with .Params.writer -}}
+    ,"author": [
+      {{- range $i, $authorName := . -}}
+        {{- if $i }},{{ end -}}
+        {
+          "@type": "Person",
+          "name": "{{ $authorName }}"
+        }
+      {{- end -}}
+    ]
+    {{- end -}}
+    {{- with $pageImage -}}
+    ,"image": "{{ . }}"
+    {{- end -}}
+    ,"inLanguage": "{{ $site.Language.Lang | default "en-us" }}"
 }
 {{- else if $isBlogPage -}}
 {
@@ -128,7 +129,7 @@
     "description": "{{ $pageDesc }}",
     "url": "{{ .Permalink }}",
     {{- with $pageImage }}
-    "image": "{{ . }}",
+    "image": "{{ . }}"
     {{- end }}
     "datePublished": "{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}",
     "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
@@ -138,11 +139,13 @@
     },
     "publisher": {
         "@type": "Organization",
-        "name": "{{ $site.Title }}",
-        "logo": {
+        "name": "{{ $site.Title }}"
+        {{- with $site.Params.logo }}
+        ,"logo": {
             "@type": "ImageObject",
-            "url": "{{ $site.Params.logo | absURL }}"
+            "url": "{{ . | absURL }}"
         }
+        {{- end }}
     }
 }
 {{- else if .IsHome -}}
@@ -154,13 +157,15 @@
     "url": "{{ .Permalink }}",
     "publisher": {
         "@type": "Organization",
-        "name": "{{ $site.Title }}",
-        "logo": {
+        "name": "{{ $site.Title }}"
+        {{- with $site.Params.logo }}
+        ,"logo": {
             "@type": "ImageObject",
-            "url": "{{ $site.Params.logo | absURL }}"
+            "url": "{{ . | absURL }}"
         }
-    },
-    "potentialAction": {
+        {{- end }}
+    }
+    ,"potentialAction": {
         "@type": "SearchAction",
         "target": "{{ .Site.BaseURL }}search?q={search_term_string}",
         "query-input": "required name=search_term_string"
