@@ -19,6 +19,7 @@
 {{- if $page.IsHome -}}
     {{- /* Homepage gets the descriptive title from the site config */ -}}
     {{- $pageTitle = printf "%s | %s" $site.Title .Params.title -}}
+    <h1 class="seo-h1" style="display:none;">{{ .Params.title }}</h1>
 {{- else -}}
     {{- /* Other pages get "Page Title | Site Title" */ -}}
     {{- $pageTitle = printf "%s | %s" $page.Title $site.Title -}}
