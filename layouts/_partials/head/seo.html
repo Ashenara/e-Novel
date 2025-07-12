@@ -21,7 +21,6 @@
 {{- if .IsHome -}}
     {{- /* Homepage gets just the site title */ -}}
     {{- $pageTitle = $siteTitle -}}
-    <h1 class="seo-h1" style="display:none;">{{ .Params.title }}</h1>
 {{- else if and .IsPage (eq .Type "novels") .Parent -}}
     {{- /* For novel chapters, format as "Chapter Title | Novel Title | Site Title" */ -}}
     {{- $novelTitle := .Parent.Title -}}
