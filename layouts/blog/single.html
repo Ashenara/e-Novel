@@ -3,6 +3,11 @@
     
     {{ partial "components/breadcrumb.html" . }}
 
+    {{/*
+        THE KEY FIX:
+        This is a simple container on mobile. The `lg:grid` classes
+        only activate the two-column layout on large screens.
+    */}}
     <div class="lg:grid lg:grid-cols-12 lg:gap-8 mt-8">
 
         <!-- Main Content Column -->
@@ -11,7 +16,7 @@
             <header class="mb-8">
                 {{ with .Params.image }}
                 <div class="mb-6 rounded-lg overflow-hidden">
-                    <img loading="lazy" src="{{ . | relURL }}" alt="Cover for {{ $.Title }}" class="w-full h-auto object-cover max-h-[450px] rounded-lg shadow-lg">
+                    <img loading="lazy" src="{{ . | relURL }}" alt="{{ $.Title }} featured image" class="w-full h-auto object-cover max-h-[450px] rounded-lg shadow-lg">
                 </div>
                 {{ end }}
                 <h1 class="text-4xl md:text-5xl font-extrabold text-(--color-foreground) mb-4 leading-tight">
@@ -30,7 +35,7 @@
             </div>
 
             <!-- Tags & Categories -->
-            <footer class="mt-12 pt-6 border-t border-(--color-border)">
+            <footer class="mt-12 pt-6 space-y-2 border-t border-(--color-border)">
                 {{ partial "terms.html" (dict "page" . "taxonomy" "categories") }}
                 {{ partial "terms.html" (dict "page" . "taxonomy" "tags") }}
             </footer>
@@ -41,7 +46,23 @@
     </div>
 
     <!-- Related Posts -->
-    {{ $related := where (where .Site.RegularPages "Section" "blog") "Permalink" "!=" .Permalink | intersect (where .Site.RegularPages "Params.tags" "intersect" .Params.tags) | shuffle | first 10 }}
+    {{ $related := "" }}
+    {{ if or .Params.tags .Params.categories }}
+        {{/* 1. Create a page collection with the same tags or categories */}}
+        {{ $relatedByTags := where .Site.RegularPages "Params.tags" "intersect" .Params.tags }}
+        {{ $relatedByCategories := where .Site.RegularPages "Params.categories" "intersect" .Params.categories }}
+        {{ $allRelated := $relatedByTags | union $relatedByCategories }}
+
+        {{/* 2. Filter the collection. This is the corrected part. */}}
+        {{/* First, filter the combined list to only include pages from the "blog" section */}}
+        {{ $relatedInSection := where $allRelated "Section" "blog" }}
+        {{/* Then, from that result, remove the current page */}}
+        {{ $filteredRelated := where $relatedInSection "Permalink" "!=" .Permalink }}
+
+        {{/* 3. Shuffle the final list and take the first 10 pages */}}
+        {{ $related = $filteredRelated | shuffle | first 10 }}
+    {{ end }}
+
     {{ if $related }}
     <section class="mt-16 pt-8 border-t border-(--color-border)">
         <h2 class="text-3xl font-bold text-(--color-foreground) mb-8 text-center">More from Our Blog</h2>
