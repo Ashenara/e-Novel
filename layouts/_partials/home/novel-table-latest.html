@@ -1,16 +1,16 @@
 <section class="py-0">
-    <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">Latest Releases</h2>
+    <h2 class="text-xl md:text-2xl font-bold text-(--color-foreground) mb-6 text-left">Latest Releases</h2>
 
 {{/* Wrap everything in a container for the JS to target */}}
 <div id="latest-releases-container">
-    <div class="bg-(--color-card) rounded-lg p-0 md:p-4 overflow-x-auto">
+    <div class="bg-(--color-card) rounded-lg p-0 shadow-md overflow-x-auto">
         <table class="w-full text-sm text-left">
             <thead class="text-xs text-(--color-muted-foreground) uppercase bg-(--color-muted)">
                 <tr>
-                    <th scope="col" class="px-2 py-3 rounded-l-lg">Novel</th>
-                    <th scope="col" class="px-2 py-3">Latest Chapter</th>
+                    <th scope="col" class="px-2 md:px-4 py-3 rounded-l-lg">Novel</th>
+                    <th scope="col" class="px-2 md:px-4 py-3">Latest Chapter</th>
                     {{/*<th scope="col" class="px-4 py-3 hidden md:table-cell">Author</th>*/}}
-                    <th scope="col" class="px-2 py-3 hidden lg:table-cell rounded-r-lg">Updated</th>
+                    <th scope="col" class="px-2 md:px-4 py-3 hidden lg:table-cell rounded-r-lg">Updated</th>
                 </tr>
             </thead>
             {{/* Add an ID to the tbody so our JavaScript can find it */}}
@@ -35,7 +35,7 @@
                             {{/* CHANGE: Add a class to each row for the JS to target */}}
                             <tr class="border-b border-(--color-border) lazy-load-item">
                                 <!-- Novel Title & Cover -->
-                                <td class="px-0 py-3">
+                                <td class="px-2 md:px-4 py-3">
                                     <div class="flex items-center gap-3">
                                         <a href="{{ $novel.Permalink }}" class="shrink-0">
                                             {{ partial "responsive-image.html" (dict
@@ -43,6 +43,7 @@
                                             "src" ($novel.Params.image | default "")
                                             "alt" (printf "Novel cover for %s" $novel.Title)
                                             "class" "w-12 h-16 object-cover rounded-md shadow-sm"
+                                            "widths" (slice 96)
                                             "sizes" "48px"
                                             "placeholder" "https://placehold.co/48x64/27272A/FFFFFF?text=C"
                                             )}}
@@ -55,7 +56,7 @@
                                     </div>
                                 </td>
                                 <!-- Latest Chapter -->
-                                <td class="px-2 py-3">
+                                <td class="px-2 md:px-4 py-3">
                                     <a href="{{ .Permalink }}" class="text-(--color-muted-foreground) hover:text-(--color-primary) transition-colors line-clamp-2">
                                         {{ .Title }}
                                     </a>
@@ -69,7 +70,7 @@
                                     <span class="text-(--color-muted-foreground)">{{ $writer }}</span>
                                 </td>*/}}
                                 <!-- Updated Date -->
-                                <td class="px-2 py-3 hidden lg:table-cell">
+                                <td class="px-2 md:px-4 py-3 hidden lg:table-cell">
                                     <span class="text-(--color-muted-foreground) font-medium">{{ .PublishDate.Format "Jan 2" }}</span>
                                 </td>
                             </tr>

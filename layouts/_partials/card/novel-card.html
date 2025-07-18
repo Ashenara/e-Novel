@@ -18,18 +18,20 @@
 
 {{ if reflect.IsSlice $status }}{{ with first 1 $status }}{{ $status = index . 0 }}{{ end }}{{ end }}
 
-<a href="{{ $permalink }}" class="group flex flex-col w-[175px] shrink-0 bg-(--color-card) rounded-lg overflow-hidden transition-all duration-300 hover:-translate-y-1">
+<a href="{{ $permalink }}" class="group flex flex-col w-[125px] md:w-[175px] shrink-0 bg-(--color-card) rounded-lg overflow-hidden transition-all duration-300 hover:-translate-y-1">
     
     <!-- Image Section -->
     <div class="relative">
         <div class="aspect-6/7 w-full overflow-hidden">
-            {{/* The partial call is now correct because $imageSrc is just the filename */}}
+            {{/* --- THE FIX --- */}}
+            {{/* Pass a specific 'widths' slice for this card's size. */}}
             {{ partial "responsive-image.html" (dict
-                "page"  $ctx
-                "src"   $imageSrc
-                "alt"   (printf "Novel cover for %s" $title)
-                "class" "w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                "sizes" "175px"
+                "page"   $ctx
+                "src"    $imageSrc
+                "alt"    (printf "Novel cover for %s" $title)
+                "class"  "w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                "widths" (slice 250)
+                "sizes"  "125px"
                 "placeholder" "https://placehold.co/400x600/27272A/FFFFFF?text=Cover"
             )}}
         </div>

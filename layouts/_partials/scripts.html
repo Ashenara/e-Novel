@@ -1,37 +1,88 @@
+{{/* layouts/partials/scripts.html (Search Logic Fixed) */}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Hide Header on Scroll ---
     const initHeaderScroll = () => {
-        const header = document.getElementById('header-nav');
+    const header = document.getElementById('header-nav');
         if (!header) return;
-        let lastScrollY = window.scrollY;
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > lastScrollY && window.scrollY > header.offsetHeight) {
-                header.classList.add('-translate-y-full');
-            } else {
-                header.classList.remove('-translate-y-full');
-            }
-            lastScrollY = window.scrollY;
-        });
-    };
 
-    // --- Mobile Menu ---
+        const headerHeight = header.offsetHeight; // Reading this once is fine
+        let lastScrollY = window.scrollY;
+        let isTicking = false; // This flag will prevent the code from running too often
+
+        // 1. Move the core logic into its own function
+        const updateHeader = () => {
+            const currentScrollY = window.scrollY;
+
+            if (currentScrollY > lastScrollY && currentScrollY > headerHeight) {
+                header.classList.add("-translate-y-full");
+            } else {
+                header.classList.remove("-translate-y-full");
+            }
+
+            lastScrollY = currentScrollY;
+            
+            // 3. Reset the flag, allowing the next frame to be requested
+            isTicking = false;
+        };
+
+    // 2. In the scroll listener, only request an animation frame
+    window.addEventListener('scroll', () => {
+        // Check the flag to ensure we don't schedule multiple frames
+        if (!isTicking) {
+            // Ask the browser to run our updateHeader function at the next available repaint
+            window.requestAnimationFrame(updateHeader);
+            // Set the flag to true to block further requests until the current one is done
+            isTicking = true;
+        }
+    });
+};
+
+    // The corrected and fully accessible initMobileMenu function
+
     const initMobileMenu = () => {
         const openBtn = document.getElementById('mobile-menu-open-button');
         const closeBtn = document.getElementById('mobile-menu-close-button');
         const overlay = document.getElementById('mobile-menu-overlay');
         if (!openBtn || !closeBtn || !overlay) return;
-        const openMenu = () => overlay.classList.remove('-translate-y-full');
+
+        // --- Set the initial hidden state correctly on page load ---
+        // FIX: Ensure the menu is non-interactive when the page first loads.
+        overlay.inert = true;
+        overlay.setAttribute('aria-hidden', 'true');
+
+
+        const openMenu = () => {
+            // Show the menu visually
+            overlay.classList.remove('-translate-y-full');
+            
+            // FIX: Update accessibility state to be "visible" and "interactive"
+            overlay.setAttribute('aria-hidden', 'false');
+            overlay.inert = false;
+        };
+
         const closeMenu = () => {
+            // Hide the menu visually
             overlay.classList.add('-translate-y-full');
+            
+            // FIX: Update accessibility state to be "hidden" and "non-interactive"
+            overlay.setAttribute('aria-hidden', 'true');
+            overlay.inert = true;
+            
+            // Good practice: return focus to the button that opened the menu
             openBtn.focus();
         };
+
+        // Your event listeners remain exactly the same
         openBtn.addEventListener('click', openMenu);
         closeBtn.addEventListener('click', closeMenu);
         overlay.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !overlay.classList.contains('-translate-y-full')) closeMenu();
+            // The check for the class still works perfectly as a condition
+            if (e.key === 'Escape' && !overlay.classList.contains('-translate-y-full')) {
+                closeMenu();
+            }
         });
     };
 

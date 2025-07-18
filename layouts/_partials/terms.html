@@ -1,7 +1,13 @@
+{{/* layouts/partials/terms.html (Corrected) */}}
 {{- $page := .page -}}
 {{- $taxonomy := .taxonomy -}}
 
 {{- with $page.GetTerms $taxonomy -}}
+    {{/*
+        THE KEY FIX:
+        We get the taxonomy's name (e.g., "Categories") from the *first term*
+        in the list, not by trying to call .Parent on the whole list.
+    */}}
     {{- $taxonomyTitle := (index . 0).Page.Parent.LinkTitle -}}
 
     <div class="flex items-center flex-wrap gap-x-4 gap-y-2">

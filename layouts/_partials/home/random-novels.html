@@ -1,5 +1,8 @@
 <section class="py-0">
-    <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">Random Picks</h2>
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl md:text-2xl font-bold text-(--color-foreground)">Random Novels</h2>
+        <a href="/novels" class="text-base text-(--color-primary) hover:underline">More</a>
+    </div>
 <div class="grid grid-cols-3 sm:grid-cols-3 gap-4">
     {{ $allNovelOverviews := where (where .Site.Pages "Section" "novels") "IsNode" true }}
     {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}

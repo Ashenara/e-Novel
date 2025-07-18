@@ -17,7 +17,6 @@
   </footer>
   {{ partial "search-modal.html" . }}
   {{ partial "scripts.html" . }}
-  {{ partial "firebase/firebase-init.html" . }}
-  {{ partial "firebase/auth-listener.html" . }}
+  {{ partialCached "head/js.html" . }}
 </body>
 </html>

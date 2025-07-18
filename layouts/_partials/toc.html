@@ -1,12 +1,40 @@
+{{/*
+    Table of Contents Partial
+    Renders a sticky sidebar ToC on large screens.
+
+    USAGE:
+    {{ partial "toc.html" . }}
+
+    It relies on the following from the parent context (.):
+    - .TableOfContents: The auto-generated HTML for the ToC.
+    - .Site.Params.toc.minChar: A site parameter to control the minimum length (optional).
+*/}}
+
+{{/*
+    CONFIGURATION:
+    Set the minimum character length for the ToC to appear.
+    This prevents a ToC from showing on short articles with only one heading.
+    You can set this in your hugo.toml file, or we default to 200.
+*/}}
 {{ $minTocLen := .Site.Params.toc.minChar | default 200 }}
 
+{{/* Only render the ToC if the generated HTML is long enough. */}}
 {{ if ge (len .TableOfContents) $minTocLen }}
 <aside class="hidden lg:block lg:col-span-3">
+    {{/* 'sticky top-24' makes the ToC follow the user as they scroll down */}}
     <div class="sticky top-24">
         <h3 class="text-lg font-bold text-(--color-foreground) mb-4">
             On this page
         </h3>
+        {{/*
+            The 'id' is crucial for the smooth-scrolling JavaScript in single.html.
+            The custom 'toc-links' class is for applying specific styles.
+        */}}
         <nav id="toc" class="text-sm toc-links">
+            {{/*
+                Hugo automatically generates a nested <ul> list here.
+                The .TableOfContents variable is pre-rendered HTML.
+            */}}
             {{ .TableOfContents }}
         </nav>
     </div>

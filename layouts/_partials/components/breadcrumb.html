@@ -1,30 +1,47 @@
+{{/*
+    layouts/partials/components/breadcrumb.html (Revamped)
+
+    A smarter breadcrumb that is "taxonomy-aware" and visually consistent
+    with the rest of the theme.
+*/}}
+
 {{ $crumbs := slice (dict "url" ("/" | relURL) "title" "Home") }}
 
+{{/* --- Logic to build the breadcrumb path --- */}}
+
+{{/* 1. If it's a taxonomy term (e.g., /genres/action), add the parent list page (e.g., /genres) */}}
 {{ if eq .Kind "term" }}
     {{ with .Site.GetPage (printf "/%s" .Data.Plural) }}
         {{ $crumbs = $crumbs | append (dict "url" .Permalink "title" .Title) }}
     {{ end }}
 {{ end }}
 
+{{/* 2. Add the content ancestors (e.g., /novels/ for a novel page) */}}
 {{ range .Ancestors.Reverse }}
     {{ if and .IsSection (ne .Permalink "/") }}
         {{ $crumbs = $crumbs | append (dict "url" .Permalink "title" .Title) }}
     {{ end }}
 {{ end }}
 
+{{/* 3. Add the current page, unless we are on the homepage */}}
 {{ if not .IsHome }}
     {{ $crumbs = $crumbs | append (dict "url" .Permalink "title" .Title "active" true) }}
 {{ end }}
 
+
+{{/* --- Render the breadcrumb HTML --- */}}
 <nav class="text-sm font-medium mb-6" aria-label="breadcrumb">
     <ol class="list-none p-0 inline-flex flex-wrap items-center gap-2">
         {{ range $i, $crumb := $crumbs }}
             <li class="flex items-center">
                 {{ if $crumb.active }}
+                    {{/* Current page is a span, not a link */}}
                     <span class="text-(--color-foreground) font-semibold">{{ $crumb.title }}</span>
                 {{ else }}
+                    {{/* Ancestor pages are links */}}
                     <a href="{{ $crumb.url }}" class="text-(--color-primary) hover:underline">{{ $crumb.title }}</a>
                     
+                    {{/* Add a separator, but not for the last item */}}
                     <svg class="w-4 h-4 text-(--color-muted-foreground) ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>

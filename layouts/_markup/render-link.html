@@ -1,3 +1,9 @@
+{{/*
+    layouts/_default/_markup/render-link.html (Revamped)
+    This hook intercepts Markdown links and adds icons for external
+    and download links, ensuring consistent styling.
+*/}}
+
 {{- $url := .Destination | safeURL -}}
 {{- $text := .Text | safeHTML -}}
 {{- $isExternal := strings.HasPrefix $url "http" -}}

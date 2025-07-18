@@ -1,3 +1,9 @@
+{{/*
+    layouts/_default/_markup/render-image.html (Revamped)
+    This hook intercepts Markdown images and wraps them in a styled <figure>
+    with a link for lightboxes and an automatic caption.
+*/}}
+
 {{- $src := .Destination -}}
 {{- $alt := .PlainText | plainify -}}
 {{- $caption := .Title -}}

@@ -10,51 +10,51 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-4 lg:gap-8">
         <!-- Left Column: Filters & Search -->
-        <aside class="lg:col-span-1 mb-8 lg:mb-0">
-            <div id="filter-sidebar" class="sticky top-8 p-6 bg-(--color-background) rounded-lg">
-                <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">Search & Filter</h2>
+<aside class="lg:col-span-1 mb-8 lg:mb-0">
+    <div id="filter-sidebar" class="sticky top-8 px-0 py-6 bg-(--color-background) rounded-lg">
+        <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">Search & Filter</h2>
 
-                <!-- The search input remains -->
-                <div class="mb-6">
-    <label for="novel-search-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search all novels</label>
-    
-    <!-- Replace the class attribute on this input -->
-    <input type="search" id="novel-search-input" placeholder="by title or author..." 
-           class="mt-1 block w-full px-4 py-2 rounded-full border-gray-300 bg-gray-100 dark:bg-gray-700 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 transition-shadow">
-</div>
-                
-                {{/* This logic to generate the filter list is still good! */}}
-                {{ $allNovels := where .Site.Pages "Section" "novels" }}
-                {{ $allNovels = where $allNovels "IsNode" true }}
-                {{ $allNovels = where $allNovels "Params.excludeFromLists" "!=" true }}
+        <!-- The search input remains visible on all screen sizes -->
+        <div class="mb-6">
+            <label for="novel-search-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search all novels</label>
+            <input type="search" id="novel-search-input" placeholder="by title or author..." 
+                   class="mt-1 block w-full px-4 py-2 rounded-full border-gray-300 bg-gray-100 dark:bg-gray-700 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 transition-shadow">
+        </div>
+        
+        {{/* Hugo logic is still fine */}}
+        {{ $allNovels := where .Site.Pages "Section" "novels" }}
+        {{ $allNovels = where $allNovels "IsNode" true }}
+        {{ $allNovels = where $allNovels "Params.excludeFromLists" "!=" true }}
 
-                <!-- Filter by Status -->
-                <div class="mb-6">
-                    <h3 class="font-semibold mb-2 text-gray-800 dark:text-gray-200">Status</h3>
-                    <ul class="space-y-1" id="status-filter-list">
-                        <li><button data-filter-group="status" data-filter-value="all" class="filter-btn ... active">All Statuses</button></li>
-                        {{ $statuses := slice }}
-                        {{ range $allNovels }}{{ with .Params.status }}{{ $statuses = $statuses | append (index . 0) }}{{ end }}{{ end }}
-                        {{ range $statuses | uniq | sort }}
-                            <li><button data-filter-group="status" data-filter-value="{{ . | urlize }}" class="filter-btn ...">{{ . | title }}</button></li>
-                        {{ end }}
-                    </ul>
-                </div>
+        <!-- Filter by Status - MODIFIED -->
+        <!-- This div is now hidden on mobile and appears on large screens -->
+        <div class="mb-6 hidden lg:block">
+            <h3 class="font-semibold mb-2 text-gray-800 dark:text-gray-200">Status</h3>
+            <ul class="space-y-1" id="status-filter-list">
+                <li><button data-filter-group="status" data-filter-value="all" class="filter-btn ... active">All Statuses</button></li>
+                {{ $statuses := slice }}
+                {{ range $allNovels }}{{ with .Params.status }}{{ $statuses = $statuses | append (index . 0) }}{{ end }}{{ end }}
+                {{ range $statuses | uniq | sort }}
+                    <li><button data-filter-group="status" data-filter-value="{{ . | urlize }}" class="filter-btn ...">{{ . | title }}</button></li>
+                {{ end }}
+            </ul>
+        </div>
 
-                <!-- Filter by Origin -->
-                <div>
-                    <h3 class="font-semibold mb-2 text-gray-800 dark:text-gray-200">Origin</h3>
-                    <ul class="space-y-1" id="origin-filter-list">
-                        <li><button data-filter-group="origin" data-filter-value="all" class="filter-btn ... active">All Origins</button></li>
-                        {{ $origins := slice }}
-                        {{ range $allNovels }}{{ with .Params.origin }}{{ $origins = $origins | append (index . 0) }}{{ end }}{{ end }}
-                        {{ range $origins | uniq | sort }}
-                            <li><button data-filter-group="origin" data-filter-value="{{ . | urlize }}" class="filter-btn ...">{{ . | title }}</button></li>
-                        {{ end }}
-                    </ul>
-                </div>
-            </div>
-        </aside>
+        <!-- Filter by Origin - MODIFIED -->
+        <!-- This div is also hidden on mobile -->
+        <div class="hidden lg:block">
+            <h3 class="font-semibold mb-2 text-gray-800 dark:text-gray-200">Origin</h3>
+            <ul class="space-y-1" id="origin-filter-list">
+                <li><button data-filter-group="origin" data-filter-value="all" class="filter-btn ... active">All Origins</button></li>
+                {{ $origins := slice }}
+                {{ range $allNovels }}{{ with .Params.origin }}{{ $origins = $origins | append (index . 0) }}{{ end }}{{ end }}
+                {{ range $origins | uniq | sort }}
+                    <li><button data-filter-group="origin" data-filter-value="{{ . | urlize }}" class="filter-btn ...">{{ . | title }}</button></li>
+                {{ end }}
+            </ul>
+        </div>
+    </div>
+</aside>
 
         <!-- Right Column: Novel List (Now JS-powered) -->
         <main class="lg:col-span-3 mt-6">
@@ -101,12 +101,12 @@ function renderCard(novel) {
     const permalink = novel.permalink || '#';
     const origin = novel.origin || '';
     const status = novel.status || '';
-    const image = novel.image || '';
+    const image_data = novel.image || {};
     const genres = novel.genres || [];
     const chapters = novel.chapters || 0;
     const isoDate = novel.date || '';
 
-    // Format the date for display, with time zone safety
+    // Format the date for display
     let displayDate = '';
     if (isoDate) {
         displayDate = new Date(isoDate + 'T00:00:00').toLocaleDateString('en-US', {
@@ -118,15 +118,32 @@ function renderCard(novel) {
 
     // --- Build Image HTML ---
     let imageHTML = '';
-    if (image) {
-        imageHTML = `<img src="${image}" alt="${title}" class="w-full h-full object-cover">`;
+    if (image_data.src) {
+        imageHTML = `<img 
+                        src="${image_data.src}" 
+                        srcset="${image_data.srcset}"
+                        sizes="160px"
+                        width="${image_data.width}"
+                        height="${image_data.height}"
+                        loading="lazy"
+                        alt="${title}" 
+                        class="w-full h-full object-cover">`;
     } else {
         imageHTML = `<div class="w-full h-full flex items-center justify-center" style="background-color: var(--color-muted);">
                         <span class="text-xs p-2 text-center" style="color: var(--color-muted-foreground);">No Image</span>
                     </div>`;
     }
+    
+    // --- Build Desktop-Only HTML Sections ---
+    let summaryHTML = '';
+    if (summary) {
+        // We wrap the summary in a div with the responsive classes.
+        summaryHTML = `
+            <div class="hidden sm:block">
+                <p class="text-sm leading-relaxed line-clamp-3 mt-3" style="color: var(--color-muted-foreground);">${summary}</p>
+            </div>`;
+    }
 
-    // --- Build Genres HTML ---
     let genresHTML = '';
     if (genres.length > 0) {
         genresHTML += '<div class="mt-3 flex flex-wrap gap-2">';
@@ -136,11 +153,9 @@ function renderCard(novel) {
         genresHTML += '</div>';
     }
 
-    // --- Build Meta Footer HTML (The New, Reliable Way) ---
     let footerHTML = `
         <div class="pt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium" style="border-top: 1px solid var(--color-border); color: var(--color-muted-foreground);">`;
-
-    // Each 'if' block now builds its complete HTML, including the correct SVG. No more clever tricks.
+    // (footer content remains the same)
     if (status) {
         footerHTML += `<span class="flex items-center gap-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -167,22 +182,24 @@ function renderCard(novel) {
     }
     footerHTML += '</div>';
 
-
     // --- Assemble the Final Card ---
     return `
-    <div class="novel-card-item flex flex-col sm:flex-row rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden" style="background-color: var(--color-card);">
-        <div class="flex-shrink-0 w-full sm:w-40 aspect-[3/4]">
+    <div class="novel-card-item flex flex-row rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden" style="background-color: var(--color-card);">
+        <div class="flex-shrink-0 w-24 sm:w-40 h-32 sm:h-auto sm:aspect-[3/4]">
             <a href="${permalink}" class="block h-full">${imageHTML}</a>
         </div>
-        <div class="p-4 flex-grow flex flex-col justify-between">
+        <div class="p-4 flex-grow flex flex-col justify-between w-full overflow-hidden">
             <div class="flex-grow">
-                <h3 class="text-lg font-bold line-clamp-2" style="color: var(--color-foreground);">
+                <h3 class="text-base sm:text-lg font-bold line-clamp-2" style="color: var(--color-foreground);">
                     <a href="${permalink}" class="transition-colors" style="--hover-text-color: var(--color-primary);" onmouseover="this.style.color=this.style.getPropertyValue('--hover-text-color')" onmouseout="this.style.color=''">${title}</a>
                 </h3>
-                ${writer ? `<p class="text-sm mt-1" style="color: var(--color-muted-foreground);">by ${writer}</p>` : ''}
-                ${summary ? `<p class="text-sm leading-relaxed line-clamp-3 mt-3" style="color: var(--color-muted-foreground);">${summary}</p>` : ''}
+                ${writer ? `<p class="text-sm mt-1" style="color: var(--color-muted-foreground);">${writer}</p>` : ''}
+                
+                <!-- Summary now correctly inserted -->
+                ${summaryHTML}
             </div>
-            <div>
+            
+            <div class="hidden sm:block">
                 ${genresHTML}
                 ${footerHTML}
             </div>

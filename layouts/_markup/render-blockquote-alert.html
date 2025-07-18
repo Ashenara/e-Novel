@@ -1,4 +1,9 @@
+{{- /* layouts/_default/_markup/render-blockquote-alert.html */}}
+
 {{- if eq .Type "alert" -}}
+  {{- /* This is an Admonition - Render using admonition logic */}}
+
+  {{- /* Enforce a minimum required Hugo version. */}}
   {{- $minHugoVersion := "0.140.0" }}
   {{- if lt hugo.Version $minHugoVersion }}
     {{- errorf "Hugo-admonitions requires Hugo v%s or later. Please upgrade Hugo to v%s or higher." $minHugoVersion $minHugoVersion }}
@@ -63,6 +68,8 @@
 
   {{- /* Check if .AlertSign exists to determine if it's foldable */}}
   {{- if .AlertSign }}
+    {{- /* --- START Foldable Admonition HTML (using <details>) --- */}}
+    {{- /* The 'open' attribute could be conditionally added based on .AlertSign, e.g., if eq .AlertSign "-" */}}
     <details class="admonition {{ $type }}">
       <summary class="admonition-header">
         {{- partialCached $partial . }}

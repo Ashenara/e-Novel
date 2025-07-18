@@ -1,0 +1,34 @@
+{{/* --- Google Analytics (Optimized for Performance) --- */}}
+{{ if and (not hugo.IsServer) .Site.Params.googleAnalytics }}
+<script>
+  let gtagLoaded = false;
+  const loadGtag = () => {
+    if (gtagLoaded) {
+      return;
+    }
+
+    gtagLoaded = true;
+
+    const script = document.createElement('script');
+    script.src = 'https://www.googletagmanager.com/gtag/js?id={{ .Site.Params.googleAnalytics }}';
+    script.async = true;
+    document.head.appendChild(script);
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ .Site.Params.googleAnalytics }}');
+
+    ['scroll', 'mousemove', 'touchstart'].forEach(type => {
+        window.removeEventListener(type, loadGtag);
+    });
+  };
+
+  ['scroll', 'mousemove', 'touchstart'].forEach(type => {
+    window.addEventListener(type, loadGtag, { once: true, passive: true });
+  });
+
+  setTimeout(loadGtag, 5000);
+
+</script>
+{{ end }}

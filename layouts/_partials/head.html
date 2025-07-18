@@ -3,28 +3,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{{/* --- Favicons (Loaded from hugo.toml) --- */}}
-{{- with .Site.Params.favicon -}}
-  <link rel="icon" href="{{ . | absURL }}">
-{{- end -}}
+{{ partial "head/seo.html" . }}
 
-{{/* --- Google Analytics --- */}}
-{{ if and (not hugo.IsServer) .Site.Params.googleAnalytics }}
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ .Site.Params.googleAnalytics }}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', '{{ .Site.Params.googleAnalytics }}');
-</script>
-{{ end }}
+{{ partial "head/theme-init.html" . }}
+
+{{/* --- FIX: Preconnect to critical Firebase API origins --- */}}
+{{/* For Firestore database requests */}}
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+{{/* For Authentication requests (including Google Sign-In) */}}
+<link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
+{{/* This is still useful for assets loaded by Google Sign-in popups, etc. */}}
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 {{/* --- CSS and Theme Initialization --- */}}
 {{ with (templates.Defer (dict "key" "global")) }}
     {{ partial "head/css.html" . }}
 {{ end }}
 
-{{ partial "head/seo.html" . }}
-{{ partial "head/theme-init.html" . }}
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap"></noscript>
+
+{{/* --- Favicons (Loaded from hugo.toml) --- */}}
+{{- with .Site.Params.favicon -}}
+  <link rel="icon" href="{{ . | absURL }}">
+{{- end -}}
+
+{{ partial "head/google-analytics.html" . }}
+
 {{ partial "head/custom.html" . }}
-{{ partialCached "head/js.html" . }}
+

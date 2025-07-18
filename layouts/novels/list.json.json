@@ -5,6 +5,8 @@
 {{- $novelsOnly = where $novelsOnly "Params.excludeFromLists" "!=" true -}}
 
 {{- range $novelsOnly -}}
+    {{- $page_context := . -}} {{/* --- FIX #1: Save the page context here --- */}}
+
     {{- $data := dict
         "title" .Title
         "permalink" .Permalink
@@ -14,7 +16,7 @@
         "writer" ""
         "status" ""
         "origin" ""
-        "image" ""
+        "image" (dict)
         "genres" slice
     -}}
 
@@ -23,13 +25,31 @@
     {{- with .Params.origin }}{{ $data = merge $data (dict "origin" (index . 0)) }}{{ end -}}
     {{- with .Params.genres }}{{ $data = merge $data (dict "genres" .) }}{{ end -}}
 
+    {{- $image_data := dict -}}
     {{- with .Params.image -}}
-        {{- $data = merge $data (dict "image" (. | relURL)) -}}
-    {{- else -}}
-        {{- with .Resources.GetMatch "cover.*" -}}
-            {{- $data = merge $data (dict "image" .RelPermalink) -}}
+        {{/* 
+            --- FIX #2: Use the saved context to find the resource ---
+            We now use '$page_context.Resources' instead of '.Resources'.
+            The dot '.' inside this block still correctly refers to the image filename.
+        */}}
+        {{- $image_resource := $page_context.Resources.GetMatch . -}}
+        {{- if $image_resource -}}
+            {{- $widths := (slice 250 400) -}}
+            {{- $smallest := $image_resource.Resize (printf "%dx" (index $widths 0)) -}}
+            {{- $srcset := slice -}}
+            {{- range $widths -}}
+                {{- $resized := $image_resource.Resize (printf "%dx" .) -}}
+                {{- $srcset = $srcset | append (printf "%s %dw" $resized.RelPermalink $resized.Width) -}}
+            {{- end -}}
+            {{- $image_data = dict
+                "src"    $smallest.RelPermalink
+                "srcset" (delimit $srcset ", ")
+                "width"  $image_resource.Width
+                "height" $image_resource.Height
+            -}}
         {{- end -}}
     {{- end -}}
+    {{- $data = merge $data (dict "image" $image_data) -}}
 
     {{- $list = $list | append $data -}}
 {{- end -}}

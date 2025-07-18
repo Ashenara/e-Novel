@@ -10,8 +10,10 @@
 {{ $newReleases := first 15 (sort $allNovelOverviews "PublishDate" "desc") }}
 
 <section class="py-0">
-    <h2 class="text-3xl font-bold text-(--color-foreground) mb-6 text-left">New Releases</h2>
-
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl md:text-2xl font-bold text-(--color-foreground)">New Releases</h2>
+        <a href="/novels" class="text-base text-(--color-primary) hover:underline">More</a>
+    </div>
     {{ if $newReleases }}
     {{/* 
         We add a wrapper div with 'relative' positioning to contain the arrows.
@@ -19,8 +21,14 @@
     */}}
     <div id="new-releases-container" class="relative">
         {{/* Left Arrow Button */}}
-        <button id="scroll-left-btn" class="scroll-arrow scroll-arrow-left">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        <button
+            id="scroll-left-btn"
+            class="scroll-arrow scroll-arrow-left"
+            type="button"
+            aria-label="Scroll left"
+            tabindex="0"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
 
         <div id="new-releases-scroller" class="flex flex-nowrap overflow-x-auto pb-4 hide-scrollbar space-x-4">
@@ -30,8 +38,14 @@
         </div>
 
         {{/* Right Arrow Button */}}
-        <button id="scroll-right-btn" class="scroll-arrow scroll-arrow-right">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <button
+            id="scroll-right-btn"
+            class="scroll-arrow scroll-arrow-right"
+            type="button"
+            aria-label="Scroll right"
+            tabindex="0"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </button>
     </div>
 
@@ -69,10 +83,10 @@
             display: none;
         }
         .scroll-arrow-left {
-            left: -1.25rem; /* -20px, half of the button's width */
+            left: -0.7rem; /* -20px, half of the button's width */
         }
         .scroll-arrow-right {
-            right: -1.25rem; /* -20px, half of the button's width */
+            right: -0.7rem; /* -20px, half of the button's width */
         }
         /* Style for dark mode if you have one */
         [data-theme="dark"] .scroll-arrow {

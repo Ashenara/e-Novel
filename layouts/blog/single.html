@@ -3,23 +3,26 @@
     
     {{ partial "components/breadcrumb.html" . }}
 
-    {{/*
-        THE KEY FIX:
-        This is a simple container on mobile. The `lg:grid` classes
-        only activate the two-column layout on large screens.
-    */}}
     <div class="lg:grid lg:grid-cols-12 lg:gap-8 mt-8">
 
         <!-- Main Content Column -->
         <article class="lg:col-span-9">
             <!-- Post Header -->
             <header class="mb-8">
-                {{ with .Params.image }}
-                <div class="mb-6 rounded-lg overflow-hidden">
-                    <img loading="lazy" src="{{ . | relURL }}" alt="{{ $.Title }} featured image" class="w-full h-auto object-cover max-h-[450px] rounded-lg shadow-lg">
-                </div>
+                {{ if .Params.image }}
+                    {{ partial "responsive-image.html" (dict 
+                        "page"          .
+                        "src"           .Params.image
+                        "alt"           (printf "%s featured image" .Title)
+                        "class"         "w-full h-auto object-cover max-h-[450px] rounded-lg shadow-lg"
+                        "sizes"         "(max-width: 1024px) 100vw, 800px"
+                        "widths"        (slice 400 800)
+                        "loading"       "eager"
+                        "fetchpriority" "high"
+                    ) }}
                 {{ end }}
-                <h1 class="text-4xl md:text-5xl font-extrabold text-(--color-foreground) mb-4 leading-tight">
+
+                <h1 class="text-3xl md:text-4xl font-extrabold text-(--color-foreground) mb-4 mt-4 leading-tight">
                     {{ .Title }}
                 </h1>
                 <div class="text-(--color-muted-foreground) text-sm flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -29,12 +32,10 @@
                 </div>
             </header>
 
-            <!-- Post Content -->
+            <!-- The rest of your template remains the same -->
             <div class="prose dark:prose-invert max-w-none">
                 {{ .Content }}
             </div>
-
-            <!-- Tags & Categories -->
             <footer class="mt-12 pt-6 space-y-2 border-t border-(--color-border)">
                 {{ partial "terms.html" (dict "page" . "taxonomy" "categories") }}
                 {{ partial "terms.html" (dict "page" . "taxonomy" "tags") }}

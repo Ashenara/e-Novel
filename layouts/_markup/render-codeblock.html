@@ -1,8 +1,20 @@
+{{/* Code block render hook with header, copy button, collapse functionality, and Hugo Chroma syntax highlighting
+
+  components:
+  - Language display or filename
+  - Copy button with feedback
+  - Collapse/expand functionality
+  - Hugo Chroma syntax highlighting (preserves all Hugo config options)
+  - Theme-adaptive styling
+  - Responsive design
+*/}}
+
 {{- $lang := .Type | default "plaintext" -}}
 {{- $filename := .Attributes.filename | default "" -}}
 {{- $displayLang := $filename | default ($lang | upper) -}}
 {{- $codeId := printf "code-%d" .Ordinal -}}
 
+{{/* 折叠功能相关参数 */}}
 {{- $collapsed := .Attributes.collapsed | default false -}}
 {{- $defaultState := .Attributes.defaultState | default (site.Params.codeblock.collapse.defaultState | default "expanded") -}}
 {{- $autoCollapseLines := site.Params.codeblock.collapse.autoCollapseLines | default 30 -}}
@@ -10,6 +22,7 @@
 {{- $collapsedHeight := site.Params.codeblock.collapse.collapsedHeight | default 120 -}}
 {{- $collapseEnabled := site.Params.codeblock.collapse.enabled | default true -}}
 
+{{/* 使用 Hugo 的 transform.HighlightCodeBlock 进行语法高亮 */}}
 {{- $highlighted := transform.HighlightCodeBlock . -}}
 
 
@@ -98,47 +111,60 @@
 
     copyBtn.addEventListener('click', async function() {
       try {
+        // 智能获取代码文本，排除行号
         let codeText = '';
 
+        // 方法1: 表格形式行号 (lineNumbersInTable: true)
         const codeTableCell = codeContainer.querySelector('.lntd:last-child code');
         if (codeTableCell) {
           codeText = codeTableCell.textContent || codeTableCell.innerText;
         } else {
+          // 方法2: 内联行号 (lineNumbersInTable: false)
           const codeElement = codeContainer.querySelector('code');
           if (codeElement) {
+            // 检查是否有内联行号 (.ln 类)
             const hasInlineLineNumbers = codeElement.querySelector('.ln');
             if (hasInlineLineNumbers) {
+              // 从 .cl 元素中提取代码内容，排除 .ln 行号
               const codeLines = codeElement.querySelectorAll('.cl');
               if (codeLines.length > 0) {
                 codeText = Array.from(codeLines)
                   .map(line => {
                     const text = line.textContent || line.innerText;
+                    // 移除每行末尾的换行符，但保留行内的空白字符和缩进
                     return text.replace(/\n+$/, '');
                   })
                   .join('\n')
-                  .replace(/\n+$/, '');
+                  .replace(/\n+$/, ''); // 移除最后的多余换行符
               } else {
+                // 降级：手动过滤行号
                 const allText = codeElement.textContent || codeElement.innerText;
                 codeText = allText.replace(/^\d+/gm, '').replace(/^\s+/gm, '');
               }
             } else {
+              // 无行号，直接获取代码内容
               codeText = codeElement.textContent || codeElement.innerText;
             }
           } else {
+            // 方法3: 降级方案 - 直接从容器获取
             codeText = codeContainer.textContent || codeContainer.innerText;
           }
         }
 
+        // 清理可能的多余空白
         codeText = codeText.trim();
 
+        // 复制到剪贴板
         await navigator.clipboard.writeText(codeText);
 
+        // 更新按钮状态
         copyIcon.innerHTML = `{{ partial "components/icon.html" (dict "name" "check" "size" "xs" "ariaLabel" "") | safeJS }}`;
         if (copyText) {
           copyText.textContent = '{{ i18n "code.copied" | default "Copy Success" }}';
         }
         copyBtn.classList.add('text-green-600');
 
+        // 2秒后恢复原状
         setTimeout(() => {
           copyIcon.innerHTML = `{{ partial "components/icon.html" (dict "name" "copy" "size" "xs" "ariaLabel" "") | safeJS }}`;
           if (copyText) {
@@ -150,6 +176,7 @@
       } catch (err) {
         console.error('复制失败:', err);
 
+        // 降级方案：选择文本
         const range = document.createRange();
         const codeElement = codeContainer.querySelector('code') || codeContainer;
         range.selectNodeContents(codeElement);
@@ -157,6 +184,7 @@
         selection.removeAllRanges();
         selection.addRange(range);
 
+        // 更新按钮状态
         if (copyText) {
           copyText.textContent = '{{ i18n "code.selected" | default "Selected" }}';
         }
@@ -177,6 +205,7 @@
     const collapseText = collapseBtn.querySelector('.collapse-text');
     const collapseOverlay = codeContainer.querySelector('.collapse-overlay');
 
+    // 智能查找代码元素：优先查找 .chroma，降级到任何 pre 元素
     let codeElement = codeContainer.querySelector('pre.chroma');
     if (!codeElement) {
       codeElement = codeContainer.querySelector('pre');
@@ -198,22 +227,25 @@
                            shouldAutoCollapse();
 
       if (shouldCollapse) {
-        setCollapsed(true, false);
+        setCollapsed(true, false); // true = collapsed, false = no animation
       }
     }
 
     function shouldAutoCollapse() {
+      // 如果有 codeElement，使用精确的行数和高度检查
       if (codeElement) {
         const lines = codeElement.querySelectorAll('.line, .cl');
         const height = codeElement.offsetHeight;
         return lines.length > autoCollapseLines || height > autoCollapseHeight;
       }
 
+      // 降级方案：检查整个容器的高度和文本行数
       const containerHeight = codeContainer.offsetHeight;
       if (containerHeight > autoCollapseHeight) {
         return true;
       }
 
+      // 尝试从容器中获取文本内容来估算行数
       const textContent = codeContainer.textContent || codeContainer.innerText || '';
       const estimatedLines = textContent.split('\n').length;
       return estimatedLines > autoCollapseLines;

@@ -1,9 +1,9 @@
 {{ define "main" }}
-<article class="container mx-auto px-4 md:px-8 py-8 space-y-6">
+<article class="container mx-auto px-4 md:px-8 py-0 space-y-6">
     <h1 class="seo-h1" style="display:none;">{{ .Params.title }}</h1>
     <!-- Hero Section - Novel Slider -->
     
-        {{/*{{ partial "home/hero.html" . }}*/}}
+        {{ partial "home/hero.html" . }}
         
     <!-- Main Content Area (Unchanged) -->
     <div class="flex flex-col md:flex-row md:space-x-8">

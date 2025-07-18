@@ -1,10 +1,6 @@
-/* assets/css/_variables.css - FINAL CORRECTED VERSION */
-
-/* 1. DEFINE THE RAW COLOR PALETTE */
 :root {
     /* Base colors (ZINC) */
-    --raw-color-white: #ffffff;
-    --raw-color-zinc-50: #fafafa;
+    --raw-color-zinc-50:  #fafafa;
     --raw-color-zinc-100: #f4f4f5;
     --raw-color-zinc-200: #e4e4e7;
     --raw-color-zinc-300: #d4d4d8;
@@ -16,11 +12,11 @@
     --raw-color-zinc-900: #18181b;
     --raw-color-zinc-950: #09090b;
 
-    /* Primary colors (INDIGO) */
-    --raw-color-primary-light: #4f46e5;      /* indigo-600 */
-    --raw-color-primary-dark: #4f46e5;       /* indigo-500 */
-    --raw-color-primary-hover-light: #3730a3;/* indigo-800 */
-    --raw-color-primary-hover-dark: #6366f1; /* indigo-400 */
+    /* Primary colors (Cyan) */
+    --raw-color-primary-light: #0891b2;       /* cyan-600 */
+    --raw-color-primary-dark: #0e7490;         /* cyan-700 */
+    --raw-color-primary-hover-light: #0891b2;  /* cyan-600 */
+    --raw-color-primary-hover-dark: #164e63;   /* cyan-800 */
 
     /* Accent colors (LIME) */
     --raw-color-accent-light: #65a30d;       /* lime-600 */
@@ -28,11 +24,11 @@
     --raw-color-accent-foreground-light: var(--raw-color-zinc-50);
     --raw-color-accent-foreground-dark: var(--raw-color-zinc-900);
 
-    /* Tag colors (based on Indigo) */
-    --raw-color-tag-bg-light: #e0e7ff;       /* indigo-100 */
-    --raw-color-tag-text-light: #3730a3;     /* indigo-800 */
-    --raw-color-tag-bg-dark: #4338ca;        /* indigo-700 */
-    --raw-color-tag-text-dark: #e0e7ff;      /* indigo-100 */
+    /* Tag colors (based on Cyan) */
+    --raw-color-tag-bg-light: #0e7490;       /* cyan-700 */
+    --raw-color-tag-text-light: #cffafe;     /* cyan-100 */
+    --raw-color-tag-bg-dark: #164e63;        /* cyan-900 */
+    --raw-color-tag-text-dark: #cffafe;      /* cyan-100 */
 
     /* Icons */
     --raw-color-sun-icon: #fbbf24;           /* amber-400 */
@@ -48,8 +44,8 @@
     --color-background: var(--raw-color-zinc-50);
     --color-foreground: var(--raw-color-zinc-700);
     --color-border: var(--raw-color-zinc-200);
-    --color-card: var(--raw-color-white);
-    --color-muted: var(--raw-color-zinc-100);
+    --color-card: var(--raw-color-zinc-50);
+    --color-muted: var(--raw-color-zinc-200);
     --color-muted-foreground: var(--raw-color-zinc-500);
     --color-primary: var(--raw-color-primary-light);
     --color-primary-hover: var(--raw-color-primary-hover-light);
@@ -65,7 +61,7 @@
 
 /* 3. OVERRIDE SEMANTIC VARIABLES FOR DARK MODE */
 html.dark {
-    --color-background: var(--raw-color-zinc-900);
+    --color-background: var(--raw-color-zinc-800);
     --color-foreground: var(--raw-color-zinc-200);
     --color-border: var(--raw-color-zinc-700);
     --color-card: var(--raw-color-zinc-800);
@@ -84,7 +80,6 @@ html.dark {
 
 /* 4. RESPONSIVE OVERRIDES */
 @media (max-width: 767px) {
-    /* On smaller screens, merge card background with page background for a seamless look */
     :root:not(.dark) {
         --color-card: var(--color-background);
     }

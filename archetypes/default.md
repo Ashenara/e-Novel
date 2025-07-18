@@ -1,12 +1,12 @@
 ---
 layout: "novel"
-author: "Ae"
+author: "ePub Novels"
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
 date: "{{ .Date }}"
-image: "/novels/cn/{{ .File.ContentBaseName }}/cover.webp"
+image: "cover.webp"
 draft: false
-status: "Completed"
-origin: "Chinese Novels"
+status: ["Completed"]
+origin: ["Chinese Novels"]
 alt_titles: ""
 writer: [""]
 translator: ""

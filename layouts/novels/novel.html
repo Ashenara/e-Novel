@@ -18,7 +18,7 @@
                     "page" .
                     "src" (.Params.image | default "")
                     "alt" (printf "%s Cover" .Title)
-                    "class" "w-full h-auto rounded-xl shadow-lg object-cover"
+                    "class" "mx-auto md:w-full w-[50vw] h-auto justify-center rounded-xl shadow-lg object-cover"
                     "sizes" "(min-width: 768px) 192px, 100vw"
                     "placeholder" "https://placehold.co/400x600/27272A/FFFFFF?text=Novel+Cover"
                     "loading" "eager"
@@ -31,7 +31,13 @@
                     {{ $firstChapter := first 1 (.Pages.ByParam "chapter_number") }}
                     {{ with $firstChapter }}
                         {{ range . }}
-                            <a href="{{ .Permalink }}" class="w-full text-center bg-(--color-primary) text-white px-6 py-3 rounded-lg font-bold text-lg hover:bg-(--color-primary-hover) transition-colors shadow-md transform hover:-translate-y-0.5">Start Reading</a>
+                            <!-- === THE MODIFICATION IS HERE === -->
+                            <a id="start-reading-btn"  {{/* <-- Add this ID */}}
+                            href="{{ .Permalink }}"
+                            data-novel-id="{{ $.File.UniqueID | default ($.Title | urlize) }}" {{/* <-- Add the novel's ID */}}
+                            class="w-full text-center bg-(--color-primary) text-white px-6 py-3 rounded-lg font-bold text-lg hover:bg-(--color-primary-hover) transition-colors shadow-md transform hover:-translate-y-0.5">
+                            Start Reading  {{/* <-- This is the default text */}}
+                            </a>
                         {{ end }}
                     {{ else }}
                         {{ with .Params.download }}
@@ -39,24 +45,24 @@
                         {{ end }}
                     {{ end }}
                     <!-- MODIFIED Add to Library Button -->
-    <button
-    id="add-to-library-btn"
-    data-novel-id="{{ .File.UniqueID | default (.Title | urlize) }}"
-    data-novel-title="{{ .Title }}"
-    data-novel-permalink="{{ .Permalink | absURL }}"
+                    <button
+                        id="add-to-library-btn"
+                        data-novel-id="{{ .File.UniqueID | default (.Title | urlize) }}"
+                        data-novel-title="{{ .Title }}"
+                        data-novel-permalink="{{ .Permalink | absURL }}"
 
-    {{/* This now uses the same logic as your working img tag, but with absURL */}}
-    data-novel-image="{{ with .Params.image }}{{ . | absURL }}{{ else }}{{ "https://placehold.co/400x600/27272A/FFFFFF?text=Novel+Cover" }}{{ end }}"
+                        {{/* This now uses the same logic as your working img tag, but with absURL */}}
+                        data-novel-image="{{ with .Params.image }}{{ . | absURL }}{{ else }}{{ "https://placehold.co/400x600/27272A/FFFFFF?text=Novel+Cover" }}{{ end }}"
 
-    data-novel-status="{{ with .Params.status }}{{ if reflect.IsSlice . }}{{ index . 0 }}{{ else }}{{ . }}{{ end }}{{ end }}"
-    data-novel-genres="{{ with .Params.genres }}{{ delimit . "," }}{{ end }}"
-    class="w-full text-center bg-(--color-muted) text-(--color-muted-foreground) px-6 py-3 rounded-lg font-bold text-lg hover:bg-opacity-80 transition-colors shadow-md transform hover:-translate-y-0.5"
-    disabled
->
-    Add to Library
-</button>
-    <p id="library-status" class="text-xs text-center text-(--color-muted-foreground) h-4"></p>
-</div>
+                        data-novel-status="{{ with .Params.status }}{{ if reflect.IsSlice . }}{{ index . 0 }}{{ else }}{{ . }}{{ end }}{{ end }}"
+                        data-novel-genres="{{ with .Params.genres }}{{ delimit . "," }}{{ end }}"
+                        class="w-full text-center bg-(--color-muted) text-(--color-muted-foreground) px-6 py-3 rounded-lg font-bold text-lg hover:bg-opacity-80 transition-colors shadow-md transform hover:-translate-y-0.5"
+                        disabled
+                    >
+                    Add to Library
+                    </button>
+                    <p id="library-status" class="text-xs text-center text-(--color-muted-foreground) h-4"></p>
+                </div>
 
                 <!-- Metadata Block -->
                 <div class="bg-(--color-card) p-4 rounded-lg">
@@ -141,8 +147,8 @@
                     {{ end }}
 
                     {{ with .Params.tags }}
-                    <h3 class="text-lg font-bold text-(--color-foreground) mb-3 mt-4">Tags</h3>
-                    <div class="flex flex-wrap gap-2">
+                    <h3 class="hidden sm:block text-lg font-bold text-(--color-foreground) mb-3 mt-4">Tags</h3>
+                    <div class="flex flex-wrap gap-2 hidden sm:block">
                         {{ range . }}
                             {{/* FIXED: Removed leading space in URL path */}}
                             <a href="{{ printf "/tags/%s/" (. | urlize) | relURL }}" class="bg-(--color-alt-tag-bg) text-(--color-alt-tag-text) text-sm font-medium px-3 py-1 rounded-full hover:bg-(--color-primary) hover:text-white transition-colors">{{ . }}</a>
@@ -338,316 +344,4 @@
     }
 </style>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const chunkHeaders = document.querySelectorAll('.chunk-header');
-        chunkHeaders.forEach(header => {
-            header.addEventListener('click', () => {
-                const content = header.nextElementSibling;
-                const icon = header.querySelector('svg');
-                content.classList.toggle('hidden');
-                icon.classList.toggle('rotate-180');
-            });
-        });
-        const sortOldestBtn = document.getElementById('sort-oldest');
-        const sortNewestBtn = document.getElementById('sort-newest');
-        const chunksContainer = document.getElementById('chapter-chunks-container');
-        if (sortNewestBtn && sortOldestBtn && chunksContainer) {
-            const sortChapters = (order) => {
-                const chunks = Array.from(chunksContainer.children);
-                chunks.sort((a, b) => {
-                    const indexA = parseInt(a.dataset.chunkIndex, 10);
-                    const indexB = parseInt(b.dataset.chunkIndex, 10);
-                    return order === 'newest' ? indexB - indexA : indexA - indexB;
-                });
-                chunksContainer.innerHTML = '';
-                chunks.forEach(chunk => {
-                    const list = chunk.querySelector('ul');
-                    if (list) {
-                        const items = Array.from(list.children);
-                        items.sort((a, b) => {
-                            const chapterA = parseInt(a.dataset.chapterNumber, 10);
-                            const chapterB = parseInt(b.dataset.chapterNumber, 10);
-                            return order === 'newest' ? chapterB - chapterA : chapterA - chapterB;
-                        });
-                        list.innerHTML = '';
-                        items.forEach(item => list.appendChild(item));
-                    }
-                    chunksContainer.appendChild(chunk);
-                });
-                updateSortButtons(order);
-                localStorage.setItem('chapterSortOrder', order);
-            };
-            const updateSortButtons = (activeOrder) => {
-                const activeClasses = ['bg-(--color-primary)', 'text-white'];
-                const inactiveClasses = ['bg-(--color-muted)', 'text-(--color-muted-foreground)', 'hover:bg-opacity-80'];
-                [sortNewestBtn, sortOldestBtn].forEach(btn => btn.classList.remove(...activeClasses, ...inactiveClasses));
-                if (activeOrder === 'newest') {
-                    sortNewestBtn.classList.add(...activeClasses);
-                    sortOldestBtn.classList.add(...inactiveClasses);
-                } else {
-                    sortOldestBtn.classList.add(...activeClasses);
-                    sortNewestBtn.classList.add(...inactiveClasses);
-                }
-            };
-            sortNewestBtn.addEventListener('click', () => sortChapters('newest'));
-            sortOldestBtn.addEventListener('click', () => sortChapters('oldest'));
-            const savedOrder = localStorage.getItem('chapterSortOrder') || 'newest';
-            updateSortButtons(savedOrder);
-            if (savedOrder === 'oldest') {
-                sortChapters('oldest');
-            }
-        } else {
-            console.warn("Chapter sorting elements not found. Sorting will not be initialized.");
-        }
-    });
-    
-document.addEventListener('DOMContentLoaded', () => {
-    const checkFirebase = setInterval(() => {
-        if (typeof auth !== 'undefined' && typeof db !== 'undefined') {
-            clearInterval(checkFirebase);
-            initNovelPage();
-        }
-    }, 100);
-
-    function initNovelPage() {
-        const libraryBtn = document.getElementById('add-to-library-btn');
-        const libraryStatus = document.getElementById('library-status');
-        const startReadingBtn = document.getElementById('start-reading-btn');
-
-        const novelId = libraryBtn.dataset.novelId;
-    
-        // NEW: Initialize the rating widget
-        initRatingWidget();
-
-         // NEW: Initialize the view counter
-        initViewCounter();
-        
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // User is logged in, enable the button
-                libraryBtn.disabled = false;
-                const libraryDocRef = db.collection('users').doc(user.uid).collection('library').doc(novelId);
-
-                // Check if this novel is already in the library and update UI
-                libraryDocRef.onSnapshot(doc => {
-                    if (doc.exists) {
-                        libraryBtn.textContent = 'In Library ✔️';
-                        libraryBtn.classList.add('bg-green-600', 'text-white');
-                        libraryBtn.classList.remove('bg-(--color-muted)', 'text-(--color-muted-foreground)');
-                        libraryBtn.onclick = () => removeFromLibrary(user.uid, novelId);
-                    } else {
-                        libraryBtn.textContent = 'Add to Library';
-                        libraryBtn.classList.remove('bg-green-600', 'text-white');
-                        libraryBtn.classList.add('bg-(--color-muted)', 'text-(--color-muted-foreground)');
-                        libraryBtn.onclick = () => addToLibrary(user.uid);
-                    }
-                });
-
-                
-
-            } else {
-                // User is not logged in
-                libraryBtn.disabled = false;
-                libraryStatus.textContent = 'Login to add to library';
-                libraryBtn.addEventListener('click', () => {
-                    window.location.href = '{{ "/login" | relURL }}';
-                });
-            }
-        });
-
-        function addToLibrary(uid) {
-    // We grab all the data from our button's attributes
-    const novelData = {
-        title: libraryBtn.dataset.novelTitle,
-        permalink: libraryBtn.dataset.novelPermalink,
-        image: libraryBtn.dataset.novelImage,
-        status: libraryBtn.dataset.novelStatus,     // NEW
-        genres: libraryBtn.dataset.novelGenres,   // NEW
-        addedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    db.collection('users').doc(uid).collection('library').doc(novelId).set(novelData)
-        .then(() => console.log('Added to library with full details!'))
-        .catch(e => console.error('Error adding: ', e));
-}
-
-        function removeFromLibrary(uid, novelId) {
-             db.collection('users').doc(uid).collection('library').doc(novelId).delete()
-                .then(() => console.log('Removed from library!'))
-                .catch(e => console.error('Error removing: ', e));
-        }
-
-        // --- NEW FUNCTION for the View Counting System ---
-function initViewCounter() {
-    const viewWidget = document.querySelector('[data-novel-id-for-views]');
-    if (!viewWidget) return;
-
-    const novelId = viewWidget.dataset.novelIdForViews;
-    const viewCountEl = document.getElementById('view-count-display');
-    const viewDocRef = db.collection('views').doc(novelId);
-
-    // 1. Listen for real-time updates and display the count
-    viewDocRef.onSnapshot(doc => {
-        if (doc.exists) {
-            // Format the number with commas (e.g., 1,234,567)
-            viewCountEl.textContent = doc.data().count.toLocaleString();
-        } else {
-            viewCountEl.textContent = '0';
-        }
-    });
-
-    // 2. Trigger the logic to increment the count
-    incrementViewCount(novelId);
-}
-
-// --- NEW FUNCTION to handle the increment logic ---
-async function incrementViewCount(novelId) {
-    const user = auth.currentUser;
-    const viewDocRef = db.collection('views').doc(novelId);
-
-    if (user) {
-        // --- LOGGED-IN USER LOGIC ---
-        const viewerDocRef = viewDocRef.collection('viewers').doc(user.uid);
-        const doc = await viewerDocRef.get();
-
-        if (!doc.exists) {
-            // This user has NOT viewed before. Increment the count.
-            console.log('Counting view for logged-in user:', user.uid);
-            // Use a batch to do both operations at once
-            const batch = db.batch();
-            // Operation 1: Increment the main count
-            batch.set(viewDocRef, { count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-            // Operation 2: Mark this user as having viewed
-            batch.set(viewerDocRef, { viewedAt: firebase.firestore.FieldValue.serverTimestamp() });
-            await batch.commit();
-        } else {
-            // User has viewed before, do nothing.
-            console.log('User has already been counted.');
-        }
-
-    } else {
-        // --- ANONYMOUS USER LOGIC ---
-        const sessionStorageKey = `viewed-${novelId}`;
-        const hasViewedInSession = sessionStorage.getItem(sessionStorageKey);
-
-        if (!hasViewedInSession) {
-            // This browser session has NOT viewed before. Increment the count.
-            console.log('Counting view for anonymous session.');
-            await viewDocRef.set({
-                count: firebase.firestore.FieldValue.increment(1)
-            }, { merge: true });
-
-            // Mark this session as having viewed to prevent F5 spam
-            sessionStorage.setItem(sessionStorageKey, 'true');
-        } else {
-            // Session has been counted, do nothing.
-            console.log('Anonymous session has already been counted.');
-        }
-    }
-}
-
-        // --- NEW FUNCTION for the Rating System ---
-function initRatingWidget() {
-    const widget = document.querySelector('.rating-widget');
-    if (!widget) return; // Exit if no rating widget on page
-
-    const novelSlug = widget.dataset.novelSlug;
-    if (!novelSlug) return; // Exit if no slug is defined
-
-    const ratingRef = db.collection('ratings').doc(novelSlug);
-    const averageEl = widget.querySelector('.rating-average');
-    const countEl = widget.querySelector('.rating-count');
-    const starsContainer = widget.querySelector('.stars');
-
-    // 1. Listen for real-time updates to the novel's average rating
-    ratingRef.onSnapshot(doc => {
-        if (doc.exists) {
-            const data = doc.data();
-            averageEl.textContent = (data.average || 0).toFixed(1);
-            countEl.textContent = `(${(data.count || 0)} votes)`;
-        } else {
-            averageEl.textContent = 'N/A';
-            countEl.textContent = `(0 votes)`;
-        }
-    });
-
-    // 2. Handle user interaction based on auth state
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            // User is logged in
-            widget.classList.remove('is-disabled');
-            starsContainer.title = "Rate this novel";
-            widget.querySelectorAll('input').forEach(input => input.disabled = false);
-
-            // Check for user's previous vote
-            const userVoteRef = ratingRef.collection('votes').doc(user.uid);
-            userVoteRef.get().then(voteDoc => {
-                if (voteDoc.exists) {
-                    const previousRating = voteDoc.data().rating;
-                    const starInput = widget.querySelector(`input[value="${previousRating}"]`);
-                    if (starInput) starInput.checked = true;
-                }
-            });
-
-            // Add event listener for new ratings
-            starsContainer.addEventListener('change', (e) => {
-                const newRating = parseInt(e.target.value, 10);
-                if (newRating) {
-                    setRating(novelSlug, user.uid, newRating);
-                }
-            });
-
-        } else {
-            // User is not logged in
-            widget.classList.add('is-disabled');
-            starsContainer.title = "Please log in to rate";
-            widget.querySelectorAll('input').forEach(input => input.disabled = true);
-        }
-    });
-}
-
-// --- NEW FUNCTION to perform the rating transaction ---
-async function setRating(novelSlug, userId, newRating) {
-    const ratingRef = db.collection('ratings').doc(novelSlug);
-    const userVoteRef = ratingRef.collection('votes').doc(userId);
-
-    try {
-        await db.runTransaction(async (transaction) => {
-            const novelDoc = await transaction.get(ratingRef);
-            const userVoteDoc = await transaction.get(userVoteRef);
-
-            let currentData = novelDoc.exists ? novelDoc.data() : { average: 0, count: 0 };
-            let newCount = currentData.count;
-            let newTotalScore = currentData.average * currentData.count;
-
-            if (userVoteDoc.exists) {
-                // User is changing their vote, so subtract the old value first
-                const oldRating = userVoteDoc.data().rating;
-                newTotalScore = newTotalScore - oldRating + newRating;
-            } else {
-                // User is voting for the first time
-                newCount++;
-                newTotalScore += newRating;
-            }
-
-            const newAverage = newCount > 0 ? newTotalScore / newCount : 0;
-
-            // Update the user's individual vote
-            transaction.set(userVoteRef, { rating: newRating });
-            
-            // Update the public aggregate document
-            transaction.set(ratingRef, {
-                average: newAverage,
-                count: newCount
-            }, { merge: true }); // Use merge to avoid overwriting other potential fields
-        });
-        console.log('Rating updated successfully!');
-    } catch (error) {
-        console.error("Rating transaction failed: ", error);
-    }
-}
-    }
-});
-
-</script>
 {{ end }}
