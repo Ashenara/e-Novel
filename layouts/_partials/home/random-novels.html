@@ -3,18 +3,29 @@
         <h2 class="text-xl md:text-2xl font-bold text-(--color-foreground)">Random Novels</h2>
         <a href="/novels" class="text-base text-(--color-primary) hover:underline">More</a>
     </div>
-<div class="grid grid-cols-3 sm:grid-cols-3 gap-4">
-    {{ $allNovelOverviews := where (where .Site.Pages "Section" "novels") "IsNode" true }}
-    {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
-    {{ $randomNovels := first 12 (shuffle $allNovelOverviews) }}
-    
-    {{ if $randomNovels }}
-        {{ range $randomNovels }}
-            {{/* This is the correct, simplified way to call the partial */}}
-            {{ partial "card/responsive-novel-card.html" . }}
+    <div id="random-novels-grid" class="grid grid-cols-3 sm:grid-cols-3 gap-4">
+        {{ $allNovelOverviews := where (where .Site.Pages "Section" "novels") "IsNode" true }}
+        {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
+        {{ $randomNovels := first 12 $allNovelOverviews }}
+        
+        {{ if $randomNovels }}
+            {{ range $randomNovels }}
+                {{/* This is the correct, simplified way to call the partial */}}
+                {{ partial "card/responsive-novel-card.html" . }}
+            {{ end }}
+        {{ else }}
+            <p class="text-(--color-muted-foreground) col-span-full">No random novels found.</p>
         {{ end }}
-    {{ else }}
-        <p class="text-(--color-muted-foreground) col-span-full">No random novels found.</p>
-    {{ end }}
-</div>
+    </div>
 </section>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const grid = document.getElementById('random-novels-grid');
+    if (!grid) return;
+    const cards = Array.from(grid.children);
+    for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        grid.appendChild(cards[j]);
+    }
+});
+</script>

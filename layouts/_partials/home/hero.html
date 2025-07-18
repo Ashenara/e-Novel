@@ -1,20 +1,27 @@
 <section class="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-(--color-primary) mb-8 overflow-hidden flex items-center justify-center min-h-[22rem] md:min-h-[24rem] py-6 md:py-0">
     {{ $allNovelOverviews := where (where site.Pages "Section" "novels") "IsNode" true }}
     {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
-    {{ $featuredNovels := first 5 (shuffle $allNovelOverviews) }}
+    {{ $featuredNovels := first 5 $allNovelOverviews }}
     {{ $slideCount := len $featuredNovels }}
 
     {{ if gt $slideCount 0 }}
     <div 
         x-data="{ slideCurrent: 1, slideTotal: {{ $slideCount }} }"
-        class="relative w-full max-w-6xl mx-auto">
+        x-init="
+            let slides = $el.querySelectorAll('.slide');
+            let arr = Array.from(slides);
+            arr.sort(() => Math.random() - 0.5);
+            arr.forEach(slide => $el.querySelector('.slides-container').appendChild(slide));
+        "
+        class="relative w-full max-w-6xl mx-auto"
+    >
 
         <!-- Slides Container -->
         <div class="relative w-full overflow-hidden">
-            <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${(slideCurrent - 1) * 100}%)`">
+            <div class="flex transition-transform duration-500 ease-in-out slides-container" :style="`transform: translateX(-${(slideCurrent - 1) * 100}%)`">
                 
                 {{ range $i, $novel := $featuredNovels }}
-                <div class="flex-shrink-0 w-full px-4 md:px-12">
+                <div class="slide flex-shrink-0 w-full px-4 md:px-12">
                     <div class="flex flex-col md:flex-row items-center justify-center h-full md:space-x-12 space-y-2 md:space-y-0">
                         
                         <!-- Image -->
