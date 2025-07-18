@@ -1,31 +1,45 @@
+<!-- layouts/partials/home/random-novels.html -->
 <section class="py-0">
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl md:text-2xl font-bold text-(--color-foreground)">Random Novels</h2>
         <a href="/novels" class="text-base text-(--color-primary) hover:underline">More</a>
     </div>
-    <div id="random-novels-grid" class="grid grid-cols-3 sm:grid-cols-3 gap-4">
-        {{ $allNovelOverviews := where (where .Site.Pages "Section" "novels") "IsNode" true }}
-        {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
-        {{ $randomNovels := first 12 $allNovelOverviews }}
-        
-        {{ if $randomNovels }}
-            {{ range $randomNovels }}
-                {{/* This is the correct, simplified way to call the partial */}}
+
+    {{ $allNovelOverviews := where (where .Site.Pages "Section" "novels") "IsNode" true }}
+    {{ $allNovelOverviews = where $allNovelOverviews "Params.excludeFromLists" "!=" true }}
+
+    {{/* --- THE FIX IS HERE --- */}}
+    <div id="random-novels-grid" class="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-4" style="display: none;">
+        {{ if $allNovelOverviews }}
+            {{ range $allNovelOverviews }}
                 {{ partial "card/responsive-novel-card.html" . }}
             {{ end }}
         {{ else }}
-            <p class="text-(--color-muted-foreground) col-span-full">No random novels found.</p>
+            <p class="text-(--color-muted-foreground) col-span-full">No novels found.</p>
         {{ end }}
     </div>
 </section>
+
+{{/* --- JavaScript is unchanged and correct --- */}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const grid = document.getElementById('random-novels-grid');
     if (!grid) return;
     const cards = Array.from(grid.children);
+    if (cards.length === 0) {
+        grid.style.display = 'grid';
+        return;
+    }
+    const novelsToShow = 12;
     for (let i = cards.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        grid.appendChild(cards[j]);
+        [cards[i], cards[j]] = [cards[j], cards[i]];
     }
+    grid.innerHTML = '';
+    const selectedCards = cards.slice(0, Math.min(novelsToShow, cards.length));
+    selectedCards.forEach(card => {
+        grid.appendChild(card);
+    });
+    grid.style.display = 'grid';
 });
 </script>
