@@ -3,6 +3,9 @@
 
 - Development site [www.ashenara.com](https://www.ashenara.com)
 
+## Preview
+![Preview](https://github.com/Ashenara/e-Novel/preview.webp)
+
 ## Features
 - Showcase for novel and book,
 - Reading fiture with good tools,
@@ -60,7 +63,14 @@ Hugo Guide:
 
     npm install -D @tailwindcss/typography
 
+    npm install firebase
+
+    npm install alpinejs
+
     brew install sass/sass/sass
+
+##### or Add package.json to root of your project
+    npm install
 
 ## Settings
 
