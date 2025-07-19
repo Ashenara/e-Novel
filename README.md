@@ -4,7 +4,7 @@
 - Development site [www.ashenara.com](https://www.ashenara.com)
 
 ## Preview
-![Preview](https://github.com/Ashenara/e-Novel/preview.webp)
+![Preview](/preview.webp)
 
 ## Features
 - Showcase for novel and book,
