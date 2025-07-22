@@ -2,7 +2,7 @@
 <section class="py-0">
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl md:text-2xl font-bold text-(--color-foreground)">Random Novels</h2>
-        <a href="/novels" class="text-base text-(--color-primary) hover:underline">More</a>
+        <a href="/novels" class="text-base text-(--color-primary) hover:underline">More Novel</a>
     </div>
 
     {{ $allNovelOverviews := where (where .Site.Pages "Section" "novels") "IsNode" true }}
@@ -18,7 +18,7 @@
             <p class="text-(--color-muted-foreground) col-span-full">No novels found.</p>
         {{ end }}
     </div>
-</section>
+
 
 {{/* --- JavaScript is unchanged and correct --- */}}
 <script>
@@ -43,3 +43,5 @@ document.addEventListener('DOMContentLoaded', function() {
     grid.style.display = 'grid';
 });
 </script>
+
+</section>
