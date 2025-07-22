@@ -83,10 +83,10 @@
             display: none;
         }
         .scroll-arrow-left {
-            left: -0.5rem; /* -20px, half of the button's width */
+            left: 0.5rem; /* 8px, half of the button's width */
         }
         .scroll-arrow-right {
-            right: -0.5rem; /* -20px, half of the button's width */
+            right: 0.5rem; /* 8px, half of the button's width */
         }
         /* Style for dark mode if you have one */
         [data-theme="dark"] .scroll-arrow {
@@ -102,47 +102,41 @@
     <script>
         // Use an IIFE to avoid polluting the global scope
         (function() {
-            // Wait for the DOM to be fully loaded
-            document.addEventListener('DOMContentLoaded', () => {
-                const container = document.getElementById('new-releases-container');
-                // Only run the script if the container exists on the page
-                if (!container) return;
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('new-releases-container');
+        if (!container) return;
 
-                const scroller = document.getElementById('new-releases-scroller');
-                const scrollLeftBtn = document.getElementById('scroll-left-btn');
-                const scrollRightBtn = document.getElementById('scroll-right-btn');
-                
-                // Set the amount to scroll by. A good starting point is 75% of the scroller's width.
-                const scrollAmount = scroller.clientWidth * 0.75;
+        const scroller = document.getElementById('new-releases-scroller');
+        const scrollLeftBtn = document.getElementById('scroll-left-btn');
+        const scrollRightBtn = document.getElementById('scroll-right-btn');
+        
+        // No initial calculation here
 
-                function checkScrollButtons() {
-                    // Use a small tolerance to handle floating point inaccuracies
-                    const atStart = scroller.scrollLeft <= 0;
-                    const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 1;
-                    
-                    scrollLeftBtn.classList.toggle('hidden', atStart);
-                    scrollRightBtn.classList.toggle('hidden', atEnd);
-                }
+        function checkScrollButtons() {
+            const atStart = scroller.scrollLeft <= 0;
+            const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 1;
+            scrollLeftBtn.classList.toggle('hidden', atStart);
+            scrollRightBtn.classList.toggle('hidden', atEnd);
+        }
 
-                // Add event listeners for the buttons
-                scrollLeftBtn.addEventListener('click', () => {
-                    scroller.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                });
+        scrollLeftBtn.addEventListener('click', () => {
+            // Calculate scrollAmount just before scrolling
+            const scrollAmount = scroller.clientWidth * 0.75;
+            scroller.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
 
-                scrollRightBtn.addEventListener('click', () => {
-                    scroller.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                });
+        scrollRightBtn.addEventListener('click', () => {
+            // Calculate scrollAmount just before scrolling
+            const scrollAmount = scroller.clientWidth * 0.75;
+            scroller.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
 
-                // Check button visibility on scroll events (including smooth scroll)
-                scroller.addEventListener('scroll', checkScrollButtons);
+        scroller.addEventListener('scroll', checkScrollButtons);
+        window.addEventListener('resize', checkScrollButtons);
 
-                // Initial check when the page loads
-                checkScrollButtons();
-
-                // Bonus: Re-check on window resize in case the layout changes
-                window.addEventListener('resize', checkScrollButtons);
-            });
-        })();
+        checkScrollButtons();
+    });
+})();
     </script>
 
     {{ else }}

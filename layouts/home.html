@@ -4,21 +4,21 @@
     {{ partial "home/hero.html" . }}
 
     {{/* 2. The main content container now ONLY holds content that should be constrained. */}}
-    <article class="container mx-auto px-4 md:px-8 py-8 space-y-6">
+    <article class="px-4 md:px-8 py-8 space-y-6">
         
         {{/* The hidden H1 can stay inside the main content area */}}
         <h1 class="seo-h1" style="display:none;">{{ .Params.title }}</h1>
 
         <!-- Main Content Area -->
-        <div class="flex flex-col md:flex-row md:space-x-8">
+        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_35%] md:gap-x-8">
             <!-- Left Column (65%) -->
-            <div class="w-full md:w-[65%] mb-12 md:mb-0 space-y-8">
+            <div class="mb-12 md:mb-0 space-y-8">
                 {{ partial "home/new-releases.html" . }}
                 {{ partial "home/about-announcements.html" . }}
                 {{ partial "home/novel-table-latest.html" . }}
             </div>
             <!-- Right Column (35%) -->
-            <div class="w-full md:w-[35%] space-y-12">
+            <div class="space-y-12">
                 {{ partial "home/novel-stats.html" . }}
                 {{ partial "home/random-novels.html" . }}
             </div>
