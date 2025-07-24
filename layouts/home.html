@@ -13,14 +13,21 @@
         <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_35%] md:gap-x-8">
             <!-- Left Column (65%) -->
             <div class="mb-12 md:mb-0 space-y-8">
+
                 {{ partial "home/new-releases.html" . }}
+
                 {{ partial "home/about-announcements.html" . }}
+
                 {{ partial "home/novel-table-latest.html" . }}
+
             </div>
             <!-- Right Column (35%) -->
             <div class="space-y-12">
+
                 {{ partial "home/novel-stats.html" . }}
+
                 {{ partial "home/random-novels.html" . }}
+                
             </div>
         </div>
     </article>
