@@ -97,7 +97,7 @@ function renderCard(novel) {
     // --- Get all data from the novel object, with fallbacks ---
     const title = novel.title || 'Untitled';
     const writer = novel.writer || '';
-    const summary = novel.summary || '';
+    const description = novel.description || '';
     const permalink = novel.permalink || '#';
     const origin = novel.origin || '';
     const status = novel.status || '';
@@ -135,12 +135,12 @@ function renderCard(novel) {
     }
     
     // --- Build Desktop-Only HTML Sections ---
-    let summaryHTML = '';
-    if (summary) {
-        // We wrap the summary in a div with the responsive classes.
-        summaryHTML = `
+    let descriptionHTML = '';
+    if (description) {
+        // We wrap the description in a div with the responsive classes.
+        descriptionHTML = `
             <div class="hidden sm:block">
-                <p class="text-sm leading-relaxed line-clamp-3 mt-3" style="color: var(--color-muted-foreground);">${summary}</p>
+                <p class="text-sm leading-relaxed line-clamp-3 mt-3" style="color: var(--color-muted-foreground);">${description}</p>
             </div>`;
     }
 
@@ -195,8 +195,8 @@ function renderCard(novel) {
                 </h3>
                 ${writer ? `<p class="text-sm mt-1" style="color: var(--color-muted-foreground);">${writer}</p>` : ''}
                 
-                <!-- Summary now correctly inserted -->
-                ${summaryHTML}
+                <!-- description now correctly inserted -->
+                ${descriptionHTML}
             </div>
             
             <div class="hidden sm:block">

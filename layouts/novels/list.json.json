@@ -10,7 +10,7 @@
     {{- $data := dict
         "title" .Title
         "permalink" .Permalink
-        "summary" ( .Params.summary | default .Summary )
+        "description" ( .Params.description | default .Description )
         "date" (.Date.Format "2006-01-02")
         "chapters" (len (where .RegularPages "Type" "ne" "page"))
         "writer" ""

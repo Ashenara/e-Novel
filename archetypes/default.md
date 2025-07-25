@@ -14,5 +14,5 @@ chapter: 0
 genres: [""]
 tags: [""]
 download: ""
-summary: ""
+description: ""
 ---

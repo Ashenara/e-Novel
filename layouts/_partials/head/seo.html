@@ -32,7 +32,7 @@
 {{- with $page.Params.description -}}
     {{- $pageDesc = . -}}
 {{- else -}}
-    {{- with $page.Summary -}}
+    {{- with $page.Description -}}
         {{- $pageDesc = . -}}
     {{- else -}}
         {{- $pageDesc = $site.Params.description -}}
@@ -75,7 +75,7 @@
 {{- end }}
 
 <!-- Twitter Card Tags -->
-<meta name="twitter:card" content="{{ if $pageImage }}summary_large_image{{ else }}summary{{ end }}">
+<meta name="twitter:card" content="{{ if $pageImage }}description_large_image{{ else }}description{{ end }}">
 {{- with $site.Params.author.twitter }}
 <meta name="twitter:site" content="@{{ . }}">
 <meta name="twitter:creator" content="@{{ . }}">

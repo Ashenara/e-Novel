@@ -98,7 +98,7 @@
                                         {{ .Title }}
                                     </h3>
                                     <p class="text-sm text-(--color-muted-foreground) line-clamp-2">
-                                        {{ .Summary | plainify | truncate 120 }}
+                                        {{ .Description | plainify | truncate 120 }}
                                     </p>
                                     <div class="text-xs text-(--color-muted-foreground) mt-2">{{ .PublishDate.Format "January 2, 2006" }}</div>
                                 </div>
