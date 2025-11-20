@@ -127,7 +127,9 @@ export function initComments() {
             authorId: currentUser.uid,
             authorName: currentUser.displayName || 'Anonymous',
             authorAvatarUrl: currentUser.photoURL || 'https://placehold.co/48x48/CCCCCC/666666?text=U',
-            timestamp: serverTimestamp() // v9 syntax
+            timestamp: serverTimestamp(),
+            pageTitle: pageTitle, 
+            pageUrl: pageUrl
         };
         
         const batch = writeBatch(db); // v9 syntax
